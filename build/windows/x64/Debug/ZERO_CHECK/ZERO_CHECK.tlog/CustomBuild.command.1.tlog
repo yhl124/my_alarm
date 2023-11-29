@@ -1,0 +1,10 @@
+^E:\FLUTTERPROJECTS\MY_ALARM\BUILD\WINDOWS\CMAKEFILES\3707DA95435B22B4403B172867A14CA6\GENERATE.STAMP.RULE
+setlocal
+"E:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SE:/flutterprojects/my_alarm/windows -BE:/flutterprojects/my_alarm/build/windows --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/flutterprojects/my_alarm/build/windows/my_alarm_project.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

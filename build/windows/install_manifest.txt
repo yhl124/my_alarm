@@ -1,0 +1,10 @@
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/icudtl.dat
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/flutter_windows.dll
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/flutter_assets/AssetManifest.bin
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/flutter_assets/AssetManifest.json
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/flutter_assets/FontManifest.json
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/flutter_assets/fonts/MaterialIcons-Regular.otf
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/flutter_assets/kernel_blob.bin
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/flutter_assets/NOTICES.Z
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf
+E:/flutterprojects/my_alarm/build/windows/runner/Debug/data/flutter_assets/shaders/ink_sparkle.frag
