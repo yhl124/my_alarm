@@ -16,23 +16,25 @@ class SettingBlock extends StatelessWidget {
     }
   ):super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    double containerHeight = MediaQuery.of(context).size.height * 0.10;
+    double containerHeight = MediaQuery.of(context).size.height * 0.08;
     
     return Container(
       height: containerHeight,
-      child: ListTile(
-        title: Text(maintext),
-        subtitle: Text(subtext),
-        onTap: () {
-          Navigator.push(
-            context,//여기서 연 빈 페이지에서 뒤로가면 메인으로가버림
-            MaterialPageRoute(builder: (context) => nextpage),
-          );
-        },
-        trailing: OnOffSwitch(),
+      padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+      child: Center(
+        child: ListTile(//divider 혹은 dividetiles 활용
+          title: Text(maintext),
+          subtitle: Text(subtext),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => nextpage),
+            );
+          },
+          trailing: OnOffSwitch(),
+        ),
       ),
     );
   }
