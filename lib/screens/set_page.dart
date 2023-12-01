@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+
 import '/widgets/setting_block.dart';
 import 'empty_page.dart';
 
@@ -21,10 +23,11 @@ class SetHomePage extends StatefulWidget {
   const SetHomePage({
     super.key,
   });
-
+  
   @override
   State<SetHomePage> createState() => _SetHomePageState();
 }
+
 enum Days {sun,mon,tue,wed,tur,fri,sat}
 const List<(Days, String)> dayOfTheWeek = <(Days, String)>[
   (Days.sun, '일'),
@@ -37,18 +40,40 @@ const List<(Days, String)> dayOfTheWeek = <(Days, String)>[
 ];
 
 class _SetHomePageState extends State<SetHomePage> {
+  final DateTime sixAM = //오늘 오전 6시
+    DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 6, 0);
+  final DateTime now = DateTime.now();//오늘날짜&시간.
+
+  //시간 기본값
   DateTime time = DateTime.now();
+  //달력 기본 선택날짜
+  List<DateTime?> _singleDatePickerValueWithDefaultValue = [];
+  //달력에서 선택한 날짜 기본값
+  DateTime _selectedDate = DateTime.now();
 
-  List<DateTime?> _singleDatePickerValueWithDefaultValue = [DateTime.now(),];//달력 기본 선택날짜
-  DateTime _selectedDate = DateTime.now();//달력에서 선택한 날짜
-
-  //final List<bool> _toggleButtonsSelection = Days.values.map((Days e) => e != Days.sun).toList();
+  //요일 선택 리스트, 나중에는 Days의 개수나 dayOfTheWeek의 개수 가져와서 그 크기의 false리스트 만들면 될듯
   final List<bool> _toggleButtonsSelection = [false, false, false, false, false, false, false];
-  //나중에는 Days의 개수나 dayOfTheWeek의 개수 가져와서 그 크기의 false리스트 만들면 될듯
+
   TextEditingController _textController = TextEditingController();
 
   @override
+  void initState(){
+    super.initState();
+
+    //시계에서 선택한 시간, 
+    //기본값은 현재시간이 오전6시 이후면 내일 오전 6시, 아니면 오늘 오전6시
+    time = now.compareTo(sixAM)>0 ? sixAM.add(Duration(days:1)) : sixAM;
+    //달력 기본 선택날짜 = time
+    _singleDatePickerValueWithDefaultValue = [time,];
+    //달력에서 선택한 날짜 기본값은 time
+    _selectedDate = time;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    //선택한 날짜 텍스트
+    var selectedDateStr = DateFormat('MM월 dd일 E요일').format(_selectedDate).toString();
+
     return WillPopScope(//뒤로가기 핸들링
       onWillPop: () => _onWillPop(context),
       child: Scaffold(
@@ -67,10 +92,14 @@ class _SetHomePageState extends State<SetHomePage> {
               height: MediaQuery.of(context).size.height * 0.30,
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.time,
-                initialDateTime: time,//이걸 수정해서 am pm순서 변경 가능할지도?
+                initialDateTime: time,
                 use24hFormat: false,
                 onDateTimeChanged: (DateTime newTime) {
-                  setState(() => time = newTime);
+                  setState(() { 
+                    time = newTime.compareTo(DateTime.now())>0 ? newTime : newTime.add(Duration(days:1));
+                    _selectedDate = time;
+                    //debugPrint(time.toString());
+                  });
                 },
               ),
             ),
@@ -80,8 +109,8 @@ class _SetHomePageState extends State<SetHomePage> {
               height: MediaQuery.of(context).size.height * 0.08,
               child: Row(
                 children: [
-                  Text(_selectedDate.toString()),
-                  //Text('선택 날짜나 요일'),
+                  //요일 한글화 필요
+                  Text(selectedDateStr, style: TextStyle(fontSize: 15),),//선택한 날짜 or 요일 표시 텍스트
                   Expanded(child: Container(),),
                   CupertinoButton(//날짜 선택 버튼
                     padding: EdgeInsets.all(5),
@@ -180,8 +209,8 @@ class _SetHomePageState extends State<SetHomePage> {
             width: double.infinity,
             color: Colors.transparent,
             child: CupertinoAlertDialog(
-              title: Text('알림'),
-              content : Text('저장하지 않고 나가시겠습니까?', style: TextStyle(fontSize: 15)),
+              title: Text('알림\n'),
+              content : Text('저장하지 않고 나가시겠습니까?\n', style: TextStyle(fontSize: 15)),
               actions: [
                 CupertinoDialogAction(
                   onPressed: () {

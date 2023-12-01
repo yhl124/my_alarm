@@ -30,8 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+#  flutter_localizations:
+#    sdk: flutter
   
   calendar_date_picker2: ^0.5.3
+  intl : ^0.18.0
 
 
   # The following adds the Cupertino Icons font to your application.
