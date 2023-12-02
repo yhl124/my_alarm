@@ -43,13 +43,24 @@ class _SetHomePageState extends State<SetHomePage> {
   final DateTime sixAM = //오늘 오전 6시
     DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 6, 0);
   final DateTime now = DateTime.now();//오늘날짜&시간.
+  final DateTime today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);//오늘
+  final DateTime tomorrow = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(Duration(days: 1));//내일
 
-  //시간 기본값
+  //TimeofDay테스트
+  //TimeOfDay testtime = TimeOfDay(hour:1, minute:2);
+
+  //시간 기본값 초기화
   DateTime time = DateTime.now();
+  //선택한 시간
+  DateTime _selectedTime = DateTime.now();
+  //오전 6시 이전 확인, 이전이면 true
+  bool beforeSixAM = false;
   //달력 기본 선택날짜
   List<DateTime?> _singleDatePickerValueWithDefaultValue = [];
   //달력에서 선택한 날짜 기본값
   DateTime _selectedDate = DateTime.now();
+  //달력에서 선택을 했으면
+  bool _selectedCal = false;
 
   //요일 선택 리스트, 나중에는 Days의 개수나 dayOfTheWeek의 개수 가져와서 그 크기의 false리스트 만들면 될듯
   final List<bool> _toggleButtonsSelection = [false, false, false, false, false, false, false];
@@ -60,13 +71,14 @@ class _SetHomePageState extends State<SetHomePage> {
   void initState(){
     super.initState();
 
-    //시계에서 선택한 시간, 
+    //시계에서 선택한 시간과 오전 6시인지 체크, 이전이면 true
+    beforeSixAM = now.compareTo(sixAM)>0 ? false : true;
     //기본값은 현재시간이 오전6시 이후면 내일 오전 6시, 아니면 오늘 오전6시
     time = now.compareTo(sixAM)>0 ? sixAM.add(Duration(days:1)) : sixAM;
     //달력 기본 선택날짜 = time
-    _singleDatePickerValueWithDefaultValue = [time,];
-    //달력에서 선택한 날짜 기본값은 time
     _selectedDate = time;
+    _singleDatePickerValueWithDefaultValue = [time,];
+  
   }
 
   @override
@@ -96,9 +108,16 @@ class _SetHomePageState extends State<SetHomePage> {
                 use24hFormat: false,
                 onDateTimeChanged: (DateTime newTime) {
                   setState(() { 
-                    time = newTime.compareTo(DateTime.now())>0 ? newTime : newTime.add(Duration(days:1));
-                    _selectedDate = time;
-                    //debugPrint(time.toString());
+                    if(_selectedCal == false || _selectedDate.compareTo(tomorrow)<=0){
+                      if(beforeSixAM){
+                        _selectedDate = newTime.compareTo(now)>0 ? newTime : newTime.add(Duration(days:1));
+                      }
+                      else if(!beforeSixAM){
+                        _selectedDate = newTime.subtract(Duration(days:1)).compareTo(now)>0 ? newTime.subtract(Duration(days:1)) : newTime;
+                      }
+                    }
+                    _selectedTime = newTime;
+                    //debugPrint(_selectedDate.toString());
                   });
                 },
               ),
@@ -125,12 +144,13 @@ class _SetHomePageState extends State<SetHomePage> {
                         borderRadius: BorderRadius.circular(15),
                         value: _singleDatePickerValueWithDefaultValue,
                       ).then((selectedDate) {
-                        //debugPrint(selectedDate.toString());
-                        if(selectedDate != null){//취소하면 null ok면 notnull
-                          setState(() {
+                        setState(() {
+                          if(selectedDate != null){//취소하면 null ok면 notnull
                             _selectedDate = selectedDate[0] as DateTime;
-                          });
-                        }
+                            _selectedCal = true;
+                            //debugPrint(selectedDate.toString());
+                          }
+                        });
                       });
                     },
                     child: Icon(CupertinoIcons.calendar, color: Color.fromARGB(255, 46, 42, 42)),
