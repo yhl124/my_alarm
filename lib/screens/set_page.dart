@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 
 import '/widgets/setting_block.dart';
+import 'holiday_page.dart';
 import 'empty_page.dart';
 
 
@@ -65,11 +66,13 @@ class _SetHomePageState extends State<SetHomePage> {
   bool _selectedToggles = false;
   //요일 선택 리스트, 나중에는 Days의 개수나 dayOfTheWeek의 개수 가져와서 그 크기의 false리스트 만들면 될듯
   final List<bool> _toggleButtonsSelection = [false, false, false, false, false, false, false];
+  //알람 울릴 날을 표시하는 텍스트를 위한 리스트
+  List<String> _daysForDisplay = [];
 
   TextEditingController _textController = TextEditingController();
 
-  //알람 울릴 날을 표시하는 텍스트를 위한 리스트
-  List<String> _DaysForDisplay = [];
+  //공휴일 설정 스위치 체크용
+  bool holidaySwitch = false;
 
   @override
   void initState(){
@@ -80,7 +83,7 @@ class _SetHomePageState extends State<SetHomePage> {
     //오전6시 이후면 기본 선택날짜는 내일
     _selectedDate = _beforeSixAM? today: today.add(Duration(days: 1));
     _singleDatePickerValueWithDefaultValue = [_selectedDate,];
-    _DaysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+    _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
   }
 
   @override
@@ -110,13 +113,13 @@ class _SetHomePageState extends State<SetHomePage> {
                     //debugPrint(newTime.toString());
                     if(_selectedCal == false && _selectedToggles == false){
                        _selectedDate = newTime.isAfter(DateTime.now()) ? newTime : newTime.add(Duration(days:1));
-                       _DaysForDisplay.clear();
-                       _DaysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                       _daysForDisplay.clear();
+                       _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
                     }
                     else if(_selectedCal == true && _selectedToday == true && _selectedToggles == false){
                       _selectedDate = newTime.isAfter(DateTime.now()) ? newTime : newTime.add(Duration(days:1));
-                      _DaysForDisplay.clear();
-                      _DaysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                      _daysForDisplay.clear();
+                      _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
                     }
                     _selectedTime = TimeOfDay.fromDateTime(newTime);
                   });
@@ -129,7 +132,7 @@ class _SetHomePageState extends State<SetHomePage> {
               height: MediaQuery.of(context).size.height * 0.08,
               child: Row(
                 children: [
-                  Text(_DaysForDisplay.toString(), style: TextStyle(fontSize: 15),),//선택한 날짜 or 요일 표시 텍스트
+                  Text(_daysForDisplay.toString(), style: TextStyle(fontSize: 15),),//선택한 날짜 or 요일 표시 텍스트
                   Expanded(child: Container(),),
                   CupertinoButton(//날짜 선택 버튼
                     padding: EdgeInsets.all(5),
@@ -154,8 +157,8 @@ class _SetHomePageState extends State<SetHomePage> {
                             _selectedToday = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day).compareTo(today)==0
                               ? true : false;
                             //달력에서 선택하면 리스트를 비우고 그 날짜 추가
-                            _DaysForDisplay.clear();
-                            _DaysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                            _daysForDisplay.clear();
+                            _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
                             //debugPrint(selectedDate.toString());
                           }
                         });
@@ -185,16 +188,16 @@ class _SetHomePageState extends State<SetHomePage> {
                         }
                       }
                       //출력용 리스트에 요일 추가
-                      _DaysForDisplay.clear();
-                      _DaysForDisplay.add('매주 ');
+                      _daysForDisplay.clear();
+                      _daysForDisplay.add('매주 ');
                       _selectedToggles = true;
                       selectedIndexes.forEach((index) {
-                        _DaysForDisplay.add(dayOfTheWeek[index].$2);
+                        _daysForDisplay.add(dayOfTheWeek[index].$2);
                       },);
                       if(selectedIndexes.isEmpty){
                         _selectedToggles = false;
-                        _DaysForDisplay.clear();
-                        _DaysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                        _daysForDisplay.clear();
+                        _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
                       }
                     });
                   },
@@ -204,7 +207,35 @@ class _SetHomePageState extends State<SetHomePage> {
               )
             ),
             Container(height: 10.0, padding: EdgeInsets.fromLTRB(30, 0, 30, 0),),
-            SettingBlock(maintext: '공휴일에는 끄기', subtext: '설정된 값 표시', nextpage: EmptyPage()),
+            Container(//공휴일 알람설정
+              height: MediaQuery.of(context).size.height * 0.08,
+              padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+              child: Center(
+                child: ListTile(//divider 혹은 dividetiles 활용
+                  title: Text('공휴일에는 끄기'),
+                  subtitle: Text('설정된 값 표시'),
+                  //요일 선택을 했을때만 공휴일 설정 가능하도록
+                  enabled : _selectedToggles,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HolidayPage()),
+                    );
+                  },
+                  trailing: CupertinoSwitch(
+                    value: holidaySwitch, 
+                    //요일 선택을 했을때만 공휴일 설정 가능하도록
+                    onChanged: _selectedToggles ? (value){
+                      setState(() {
+                        holidaySwitch = value;
+                      });
+                    }:null
+                  ),
+                ),
+              ),
+            ),
+
+            //StatefulSettingBlock(maintext: '공휴일에는 끄기', subtext: '설정된 값 표시', nextpage: EmptyPage(), enableSetting: _holidaySetting,),
             //알람이름 설정
             Container(
               padding: EdgeInsets.fromLTRB(30.0, 27.0, 30.0, 13.0),
