@@ -1,4 +1,4 @@
-#Sun Dec 03 03:44:03 KST 2023
+#Sun Dec 03 18:07:09 KST 2023
 base.0=E\:\\flutterprojects\\my_alarm\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
