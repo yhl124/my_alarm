@@ -5,6 +5,7 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 
 import '/widgets/setting_block.dart';
 import 'holiday_page.dart';
+import 'sound_page.dart';
 import 'empty_page.dart';
 
 
@@ -71,8 +72,9 @@ class _SetHomePageState extends State<SetHomePage> {
 
   TextEditingController _textController = TextEditingController();
 
-  //공휴일 설정 스위치 체크용
+  //설정 스위치 체크용
   bool holidaySwitch = false;
+  bool soundSwitch = false;
 
   @override
   void initState(){
@@ -159,6 +161,9 @@ class _SetHomePageState extends State<SetHomePage> {
                             //달력에서 선택하면 리스트를 비우고 그 날짜 추가
                             _daysForDisplay.clear();
                             _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                            //달력내 선택날짜 변경
+                            _singleDatePickerValueWithDefaultValue.clear();
+                            _singleDatePickerValueWithDefaultValue.add(_selectedDate);
                             //debugPrint(selectedDate.toString());
                           }
                         });
@@ -247,10 +252,33 @@ class _SetHomePageState extends State<SetHomePage> {
                 ),
               ),
             ),
-            SettingBlock(maintext: '알람음', subtext: '설정된 값 표시', nextpage: EmptyPage()),
-            Container(height: 1.0, padding: EdgeInsets.fromLTRB(30, 0, 30, 0), child: Container(color: const Color.fromARGB(255, 199, 193, 193),)),
+            Container(//알람음 설정
+              height: MediaQuery.of(context).size.height * 0.08,
+              padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+              child: Center(
+                child: ListTile(
+                  title: Text('알람음'),
+                  subtitle: Text('설정된 값 표시'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SoundPage()),
+                    );
+                  },
+                  trailing: CupertinoSwitch(
+                    value: soundSwitch, 
+                    onChanged: (value){
+                      setState(() {
+                        soundSwitch = value;
+                      });
+                    }
+                  ),
+                ),
+              ),
+            ),
+            Divider(indent: 30.0, endIndent: 30.0,),
             SettingBlock(maintext: '진동', subtext: '설정된 값 표시', nextpage: EmptyPage()),
-            Container(height: 1.0, padding: EdgeInsets.fromLTRB(30, 0, 30, 0), child: Container(color: const Color.fromARGB(255, 199, 193, 193),)),
+            Divider(indent: 30.0, endIndent: 30.0,),
             SettingBlock(maintext: '다시 울림', subtext: '설정된 값 표시', nextpage: EmptyPage()),
           ],
         ),
