@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 
+import '/dbs/my_alarms.dart';
+import '/dbs/dbConfig.dart';
 import '/widgets/setting_block.dart';
 import 'holiday_page.dart';
 import 'sound_page.dart';
@@ -70,11 +72,19 @@ class _SetHomePageState extends State<SetHomePage> {
   //알람 울릴 날을 표시하는 텍스트를 위한 리스트
   List<String> _daysForDisplay = [];
 
-  TextEditingController _textController = TextEditingController();
+  //알람 이름 설정용
+  TextEditingController _nameController = TextEditingController();
 
   //설정 스위치 체크용
-  bool holidaySwitch = false;
-  bool soundSwitch = false;
+  bool _holidaySwitch = false;
+  bool _soundSwitch = false;
+
+  //db용
+  final DataBaseService _dataBaseService = DataBaseService();
+  Future<List<MyAlarm>> _alarmList = DataBaseService().databaseConfig()
+                                      .then((_) => DataBaseService().selectAlarms());
+  
+  int currnetCount = 0;
 
   @override
   void initState(){
@@ -228,11 +238,11 @@ class _SetHomePageState extends State<SetHomePage> {
                     );
                   },
                   trailing: CupertinoSwitch(
-                    value: holidaySwitch, 
+                    value: _holidaySwitch, 
                     //요일 선택을 했을때만 공휴일 설정 가능하도록
                     onChanged: _selectedToggles ? (value){
                       setState(() {
-                        holidaySwitch = value;
+                        _holidaySwitch = value;
                       });
                     }:null
                   ),
@@ -248,7 +258,7 @@ class _SetHomePageState extends State<SetHomePage> {
               child: Center(
                 child: CupertinoTextField(
                   placeholder: '알람 이름',
-                  controller: _textController,
+                  controller: _nameController,
                 ),
               ),
             ),
@@ -259,17 +269,22 @@ class _SetHomePageState extends State<SetHomePage> {
                 child: ListTile(
                   title: Text('알람음'),
                   subtitle: Text('설정된 값 표시'),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final soundResult = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SoundPage()),
+                      MaterialPageRoute(builder: (context) => SoundPage(_soundSwitch)),
                     );
+                    if (soundResult != null){
+                      setState(() {
+                        _soundSwitch = soundResult;
+                      });
+                    }
                   },
                   trailing: CupertinoSwitch(
-                    value: soundSwitch, 
+                    value: _soundSwitch, 
                     onChanged: (value){
                       setState(() {
-                        soundSwitch = value;
+                        _soundSwitch = value;
                       });
                     }
                   ),
@@ -294,7 +309,25 @@ class _SetHomePageState extends State<SetHomePage> {
                 child: Text('취소', style: TextStyle(fontSize: 20),)
               ),
               CupertinoButton(
-                onPressed: () {},
+                onPressed: ()  {
+                  _dataBaseService.insertAlarm(MyAlarm(
+                    id: currnetCount+1,
+                    alarmName: _nameController.text,
+                    alarmTime: _selectedTime.toString(),
+                    usingAlarmSound: _soundSwitch.toString(),
+                  )).then((result) {
+                    if(result){
+                      Navigator.of(context).pop();
+                      setState(() {
+                        _alarmList = _dataBaseService.selectAlarms();
+                      });
+                      debugPrint(_alarmList.toString());
+                    }
+                    else{
+                      print('insert error');
+                    }
+                  });
+                },
                 child: Text('저장', style: TextStyle(fontSize: 20),)
               ),
             ],

@@ -36,8 +36,13 @@ dependencies:
   calendar_date_picker2: ^0.5.3
   intl : ^0.18.0
   flutter_ringtone_player: ^3.2.0
-  flutter_system_ringtones: ^0.0.6
+  sqflite: ^2.3.0
+  path: ^1.8.3
 
+  #기본 벨소기 목록 가져올때 필요
+  #flutter_system_ringtones: ^0.0.6
+  #오디오 재생시 필요
+  #audioplayers: ^4.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
