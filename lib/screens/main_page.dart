@@ -29,45 +29,47 @@ class _MainPageState extends State<MainPage> {
     @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          flexibleSpace: PreferredSize(
-            preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.4),
-            child: Column(
-              children: [
-                Container(//알람까지 얼마 남았는지 표시하는 부분
-                  height: 50.0, 
-                  child:
-                    Text('가장 시간이 적게남은 알람이 얼마 뒤에 울리는지 텍스트'),
-                ),
-                Container(//알람추가, 옵션버튼부분
-                height: 30.0,
-                //color: Colors.green,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CupertinoButton(//알람 추가 버튼
-                      padding: EdgeInsets.all(5),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SetPage()),
-                        );
-                      },
-                      child: Icon(CupertinoIcons.add, color: Color.fromARGB(255, 104, 93, 93)),
-                    ),
-                    CupertinoButton(//설정 등 목록버튼
-                      padding: EdgeInsets.all(5),
-                      onPressed: () {
-                        //나중에
-                      },
-                      child: Icon(CupertinoIcons.bars, color: const Color.fromARGB(255, 104, 93, 93)),
-                    ),
-                  ],
-                ),
-              ),
-            ]
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.27),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(height: 50,),
+            Container(//알람까지 얼마 남았는지 표시하는 부분
+              //color: Colors.yellow,
+              alignment: Alignment.center,
+              height: 50.0, 
+              child:
+                Text('가장 시간이 적게남은 알람이 얼마 뒤에 울리는지 텍스트'),
+            ),
+            Container(//알람추가, 옵션버튼부분
+              height: 50.0,
+              //color: Colors.green,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CupertinoButton(//알람 추가 버튼
+                    padding: EdgeInsets.all(5),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SetPage()),
+                      );
+                    },
+                    child: Icon(CupertinoIcons.add, color: Color.fromARGB(255, 104, 93, 93)),
                   ),
-          ),
+                CupertinoButton(//설정 등 목록버튼
+                  padding: EdgeInsets.all(5),
+                  onPressed: () {
+                    //나중에
+                  },
+                  child: Icon(CupertinoIcons.bars, color: const Color.fromARGB(255, 104, 93, 93)),
+                  ),
+                ],
+              ),
+            ),
+          ]
+        ),
       ),
       body: Column(
         children:[
@@ -76,7 +78,8 @@ class _MainPageState extends State<MainPage> {
               itemCount: _myalarms.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(_myalarms[index].alarmName),
+                  //title: Text(_myalarms[index].alarmName),
+                  title: Text(_myalarms.length.toString()),
                 );
               },
             )

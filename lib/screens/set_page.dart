@@ -321,7 +321,7 @@ class _SetHomePageState extends State<SetHomePage> {
                       setState(() {
                         _alarmList = _dataBaseService.selectAlarms();
                       });
-                      debugPrint(_alarmList.toString());
+                      //debugPrint(_alarmList.toString());
                     }
                     else{
                       print('insert error');
