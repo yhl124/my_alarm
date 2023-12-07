@@ -1,5 +1,5 @@
 class MyAlarm {
-  final int id;
+  final String id;
   final String alarmName;
   final String alarmTime;
   final String usingAlarmSound;

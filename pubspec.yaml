@@ -38,6 +38,7 @@ dependencies:
   flutter_ringtone_player: ^3.2.0
   sqflite: ^2.3.0
   path: ^1.8.3
+  uuid: ^4.0.0
 
   #기본 벨소기 목록 가져올때 필요
   #flutter_system_ringtones: ^0.0.6

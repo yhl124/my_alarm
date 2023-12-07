@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '/dbs/my_alarms.dart';
 import '/dbs/dbConfig.dart';
@@ -16,17 +17,28 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   List<MyAlarm> _myalarms = [];
-  final DataBaseService _dataBaseService = DataBaseService();
+  //final DataBaseService _dataBaseService = DataBaseService();
 
   @override
   void initState() {
     super.initState();
+    /*
     _dataBaseService.selectAlarms().then((alarms) {
       _myalarms = alarms;
     });
+    */
+    _refreshAlarmList();
   }
 
-    @override
+  Future<void> _refreshAlarmList() async {
+    final List<MyAlarm> myalarmList = await DatabaseHelper.instance.selectAlarms();
+
+    setState(() {
+      _myalarms = myalarmList;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
@@ -54,7 +66,11 @@ class _MainPageState extends State<MainPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => SetPage()),
-                      );
+                      ).then((value) {
+                        if(value != null && value as bool){
+                          _refreshAlarmList();
+                        }
+                      });
                     },
                     child: Icon(CupertinoIcons.add, color: Color.fromARGB(255, 104, 93, 93)),
                   ),
@@ -77,9 +93,22 @@ class _MainPageState extends State<MainPage> {
             child: ListView.builder(
               itemCount: _myalarms.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  //title: Text(_myalarms[index].alarmName),
-                  title: Text(_myalarms.length.toString()),
+                return Dismissible(
+                  key: ValueKey<MyAlarm>(_myalarms[index]),
+                  background: Container(
+                    color: Color.fromARGB(255, 240, 62, 49),
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 16.0),
+                    child: Icon(Icons.delete, color: Colors.white,),
+                  ),
+                  onDismissed: (direction) {
+                    setState(() {
+                      DatabaseHelper.instance.deleteAlarm(_myalarms[index].id);
+                      _myalarms.removeAt(index);
+                      //_refreshAlarmList();
+                    });
+                  },
+                  child: AlarmBlock(alarmId: _myalarms[index].id),
                 );
               },
             )

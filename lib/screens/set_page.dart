@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 
 import '/dbs/my_alarms.dart';
@@ -79,12 +80,8 @@ class _SetHomePageState extends State<SetHomePage> {
   bool _holidaySwitch = false;
   bool _soundSwitch = false;
 
-  //db용
-  final DataBaseService _dataBaseService = DataBaseService();
-  Future<List<MyAlarm>> _alarmList = DataBaseService().databaseConfig()
-                                      .then((_) => DataBaseService().selectAlarms());
-  
-  int currnetCount = 0;
+  //db알람 id 생성용
+  var uuid = Uuid().v4();
 
   @override
   void initState(){
@@ -297,7 +294,7 @@ class _SetHomePageState extends State<SetHomePage> {
             SettingBlock(maintext: '다시 울림', subtext: '설정된 값 표시', nextpage: EmptyPage()),
           ],
         ),
-        //하단 취소 저장
+        //하단바 취소 저장
         bottomNavigationBar: BottomAppBar(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -309,7 +306,18 @@ class _SetHomePageState extends State<SetHomePage> {
                 child: Text('취소', style: TextStyle(fontSize: 20),)
               ),
               CupertinoButton(
-                onPressed: ()  {
+                onPressed: () async {
+                  await DatabaseHelper.instance.insertAlarm(
+                    MyAlarm(
+                      id: uuid.toString(),
+                      alarmName: _nameController.text, 
+                      alarmTime: _selectedTime.toString(), 
+                      usingAlarmSound: _soundSwitch.toString(),
+                    )
+                  );
+                  Navigator.of(context).pop(true);
+
+                  /*
                   _dataBaseService.insertAlarm(MyAlarm(
                     id: currnetCount+1,
                     alarmName: _nameController.text,
@@ -327,6 +335,7 @@ class _SetHomePageState extends State<SetHomePage> {
                       print('insert error');
                     }
                   });
+                  */
                 },
                 child: Text('저장', style: TextStyle(fontSize: 20),)
               ),
