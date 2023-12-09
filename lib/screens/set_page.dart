@@ -12,25 +12,20 @@ import 'sound_page.dart';
 import 'empty_page.dart';
 
 
-class SetPage extends StatelessWidget {
-  const SetPage({super.key});
+class SetPage extends StatefulWidget {
+
+  //includeId가 false면 그냥 알람추가, true면 저장된알람 수정
+  final bool includeId;
+  final String alarmId;
+
+  const SetPage({
+    Key? key,
+    required this.includeId,
+    required this.alarmId,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-
-  return Scaffold(
-      body: SetHomePage()
-    );
-  }
-}
-
-class SetHomePage extends StatefulWidget {
-  const SetHomePage({
-    super.key,
-  });
-  
-  @override
-  State<SetHomePage> createState() => _SetHomePageState();
+  State<SetPage> createState() => _SetPageState();
 }
 
 enum Days {sun,mon,tue,wed,tur,fri,sat}
@@ -44,8 +39,7 @@ const List<(Days, String)> dayOfTheWeek = <(Days, String)>[
   (Days.sat, '토'),
 ];
 
-class _SetHomePageState extends State<SetHomePage> {
-
+class _SetPageState extends State<SetPage> {
   //오전 6시 이전 체크용, 0~5.99 true/ 6~23.99 false
   bool _beforeSixAM = false;
   //오늘 오전 6시
@@ -61,10 +55,12 @@ class _SetHomePageState extends State<SetHomePage> {
   //달력 기본 선택날짜 리스트
   List<DateTime?> _singleDatePickerValueWithDefaultValue = [];
 
-  //알람 선택 시간
-  TimeOfDay _selectedTime = TimeOfDay(hour: 6, minute: 0);
+  //알람 선택 시간 기본 오전6시
+  GlobalKey<FormState> _pickerKey = GlobalKey<FormState>();
+  DateTime _selectedTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 6, 0);
   //알람 선택 날짜
   DateTime _selectedDate = DateTime.now();
+  
 
   //선택한 요일이 하나라도 있으면 true
   bool _selectedToggles = false;
@@ -74,7 +70,9 @@ class _SetHomePageState extends State<SetHomePage> {
   List<String> _daysForDisplay = [];
 
   //알람 이름 설정용
+    GlobalKey<FormState> _textFieldKey = GlobalKey<FormState>();
   TextEditingController _nameController = TextEditingController();
+  String defaultText = '';
 
   //설정 스위치 체크용
   bool _holidaySwitch = false;
@@ -82,6 +80,10 @@ class _SetHomePageState extends State<SetHomePage> {
 
   //db알람 id 생성용
   var uuid = Uuid().v4();
+
+  //현재 선택한 알람의 정보
+  MyAlarm? _thisAlarm;
+  bool switchValue = false;
 
   @override
   void initState(){
@@ -93,6 +95,25 @@ class _SetHomePageState extends State<SetHomePage> {
     _selectedDate = _beforeSixAM? today: today.add(Duration(days: 1));
     _singleDatePickerValueWithDefaultValue = [_selectedDate,];
     _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+
+    if(widget.includeId == true){
+      _getAlarmInfo();
+    }
+  }
+
+  Future<void> _getAlarmInfo() async {
+    final MyAlarm myalarmInfo = await DatabaseHelper.instance.selectAlarm(widget.alarmId);
+
+    setState(() {
+      _thisAlarm = myalarmInfo;
+      //print(_thisAlarm.toString());
+      uuid = widget.alarmId;
+      _selectedTime = DateTime.parse(_thisAlarm!.alarmTime);
+      _nameController = TextEditingController(text : _thisAlarm!.alarmName);
+
+      _pickerKey = GlobalKey();
+      _textFieldKey = GlobalKey();
+    });
   }
 
   @override
@@ -115,7 +136,8 @@ class _SetHomePageState extends State<SetHomePage> {
               height: MediaQuery.of(context).size.height * 0.30,
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.time,
-                initialDateTime: sixAM,
+                key: _pickerKey,
+                initialDateTime: _selectedTime,
                 use24hFormat: false,
                 onDateTimeChanged: (DateTime newTime) {
                   setState(() { 
@@ -130,7 +152,7 @@ class _SetHomePageState extends State<SetHomePage> {
                       _daysForDisplay.clear();
                       _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
                     }
-                    _selectedTime = TimeOfDay.fromDateTime(newTime);
+                    _selectedTime = newTime;
                   });
                 },
               ),
@@ -250,12 +272,17 @@ class _SetHomePageState extends State<SetHomePage> {
             //StatefulSettingBlock(maintext: '공휴일에는 끄기', subtext: '설정된 값 표시', nextpage: EmptyPage(), enableSetting: _holidaySetting,),
             //알람이름 설정
             Container(
-              padding: EdgeInsets.fromLTRB(30.0, 27.0, 30.0, 13.0),
+              padding: EdgeInsets.fromLTRB(30.0, 17.0, 30.0, 12.0),
               height: MediaQuery.of(context).size.height * 0.10,
               child: Center(
-                child: CupertinoTextField(
-                  placeholder: '알람 이름',
+                child: TextField(
+                  maxLength: 100,
                   controller: _nameController,
+                  key: _textFieldKey,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: '알람 이름'
+                  ),
                 ),
               ),
             ),
@@ -311,31 +338,11 @@ class _SetHomePageState extends State<SetHomePage> {
                     MyAlarm(
                       id: uuid.toString(),
                       alarmName: _nameController.text, 
-                      alarmTime: _selectedTime.toString(), 
+                      alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
                       usingAlarmSound: _soundSwitch.toString(),
                     )
                   );
                   Navigator.of(context).pop(true);
-
-                  /*
-                  _dataBaseService.insertAlarm(MyAlarm(
-                    id: currnetCount+1,
-                    alarmName: _nameController.text,
-                    alarmTime: _selectedTime.toString(),
-                    usingAlarmSound: _soundSwitch.toString(),
-                  )).then((result) {
-                    if(result){
-                      Navigator.of(context).pop();
-                      setState(() {
-                        _alarmList = _dataBaseService.selectAlarms();
-                      });
-                      //debugPrint(_alarmList.toString());
-                    }
-                    else{
-                      print('insert error');
-                    }
-                  });
-                  */
                 },
                 child: Text('저장', style: TextStyle(fontSize: 20),)
               ),
