@@ -39,6 +39,7 @@ dependencies:
   sqflite: ^2.3.0
   path: ^1.8.3
   uuid: ^4.0.0
+  flutter_local_notifications: ^15.1.2
 
   #기본 벨소기 목록 가져올때 필요
   #flutter_system_ringtones: ^0.0.6

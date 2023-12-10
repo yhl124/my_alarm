@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.my_alarm_project.app-mergeDebugResources-9:/values-night-v8/values-night-v8.xml",
+            "outputFile": "com.example.my_alarm_project.app-mergeDebugResources-10:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
                     "source": "E:\\flutterprojects\\my_alarm\\android\\app\\src\\main\\res\\values-night\\styles.xml",
