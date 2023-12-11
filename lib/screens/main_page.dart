@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'set_page.dart';
 import '/dbs/my_alarms.dart';
 import '/dbs/dbConfig.dart';
-import 'set_page.dart';
+import '/widgets/notification.dart';
 import '/widgets/alarm_block.dart';
 
 
@@ -20,29 +18,16 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   List<MyAlarm> _myalarms = [];
-  //final DataBaseService _dataBaseService = DataBaseService();
-
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
     _refreshAlarmList();
-
-    tz.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
     
-    var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    FlutterLocalNotification.init();
 
-    var initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
-    flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      //onSelectNotification: onSelectNotification
-    );
-    
-    //_initLocalNotification();
+    Future.delayed(const Duration(seconds: 3),
+      FlutterLocalNotification.requestNotificationPermission());
   }
 
   Future<void> _refreshAlarmList() async {
@@ -52,98 +37,7 @@ class _MainPageState extends State<MainPage> {
       _myalarms = myalarmList;
     });
   }
-/*
-   Future<void> _initLocalNotification() async {
-    FlutterLocalNotificationsPlugin _localNotification =
-        FlutterLocalNotificationsPlugin();
-    AndroidInitializationSettings initSettingsAndroid =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
-    DarwinInitializationSettings initSettingsIOS =
-        const DarwinInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
-    );
-    InitializationSettings initSettings = InitializationSettings(
-      android: initSettingsAndroid,
-      iOS: initSettingsIOS,
-    );
-    await _localNotification.initialize(
-      initSettings,
-    );
-  }
-
-*/
-  Future<void> scheduleNotification() async {
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'your_channel_id',
-      'your_channel_name',
-      channelDescription: 'your_channel_description',
-    );
-
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-        0, 
-        'scheduled title', 
-        'scheduled body', 
-        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)), 
-        NotificationDetails(android: androidPlatformChannelSpecifics), 
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-    );
-  }
-
-  Future<void> showPushAlarm() async {
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'your_channel_id',
-      'your_channel_name',
-      channelDescription: 'your_channel_description',
-    );
-
-    await flutterLocalNotificationsPlugin.show(
-    0, 
-    '로컬 푸시 알림', 
-    '로컬 푸시 알림 테스트',
-    NotificationDetails(android: androidPlatformChannelSpecifics), 
-    payload: 'deepLink');
-  }
- /*
-  NotificationDetails _details = const NotificationDetails(
-        android: AndroidNotificationDetails('alarm 1', '1번 푸시'),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      );
-
-  tz.TZDateTime _timeZoneSetting({
-      required int hour,
-      required int minute,
-    }) {
-      tz.initializeTimeZones();
-      tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
-      tz.TZDateTime _now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate =
-          tz.TZDateTime(tz.local, _now.year, _now.month, _now.day, hour, minute);
-
-      return scheduledDate;
-    }
-
-  Future<void> selectedDatePushAlarm() async {
-    FlutterLocalNotificationsPlugin _localNotification =
-        FlutterLocalNotificationsPlugin();
-
-    await _localNotification.zonedSchedule(
-        1,
-        '로컬 푸시 알림 2',
-        '특정 날짜 / 시간대 전송 알림',
-        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)), 
-        _details,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
-  }
-*/
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,18 +60,20 @@ class _MainPageState extends State<MainPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  /*
                   ElevatedButton(
                     onPressed: () {
-                      scheduleNotification();
+                      FlutterLocalNotification.scheduledNotification();
                     },
                     child: Text('Schedule Notification'),
                   ),
+                  */
                   CupertinoButton(//알람 추가 버튼
                     padding: EdgeInsets.all(5),
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SetPage(includeId:false, alarmId: '',)),
+                        MaterialPageRoute(builder: (context) => SetPage(includeId:false, alarmId: 0,)),
                       ).then((value) {
                         if(value != null && value as bool){
                           _refreshAlarmList();

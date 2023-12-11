@@ -5,7 +5,7 @@ import '/dbs/my_alarms.dart';
 import '/dbs/dbConfig.dart';
 
 class AlarmBlock extends StatefulWidget {
-  final String alarmId;
+  final int alarmId;
 
   const AlarmBlock({
     Key? key,

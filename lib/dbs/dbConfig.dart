@@ -20,10 +20,10 @@ class DatabaseHelper {
       join(await getDatabasesPath(), 'alarm_database.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE alarms(id TEXT PRIMARY KEY, alarmName TEXT, alarmTime TEXT, usingAlarmSound TEXT)',
+          'CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, alarmName TEXT, alarmTime TEXT, usingAlarmSound TEXT)',
         );
       },
-      version: 3,
+      version: 4,
       onUpgrade: _onUpgrade
     );
   }
@@ -31,7 +31,7 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if(oldVersion < newVersion) {
       await db.execute("DROP TABLE IF EXISTS alarms");
-      await db.execute('CREATE TABLE alarms(id TEXT PRIMARY KEY, alarmName TEXT, alarmTime TEXT, usingAlarmSound TEXT)');
+      await db.execute('CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, alarmName TEXT, alarmTime TEXT, usingAlarmSound TEXT)');
     }
   }
 
@@ -42,6 +42,23 @@ class DatabaseHelper {
         'alarms', //위에서 작성한 테이블 이름
         myalram.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      return true;
+    }
+    catch (err) {
+      return false;
+    }
+  }
+
+  Future<bool> updateAlarm(MyAlarm myalram) async {
+    final Database db = await database;
+    try{
+      db.update(
+        'alarms', //위에서 작성한 테이블 이름
+        myalram.toUpdateMap(),
+        where: 'id = ?',
+        whereArgs: [myalram.id],
+        conflictAlgorithm: ConflictAlgorithm.ignore,
       );
       return true;
     }
@@ -64,7 +81,7 @@ class DatabaseHelper {
     });
   }
 
-  Future<MyAlarm> selectAlarm(String id) async {
+  Future<MyAlarm> selectAlarm(int id) async {
     final Database db = await database;
     final List<Map<String, dynamic>> data = await db.query('alarms', where: "id = ?", whereArgs: [id]);
 
@@ -76,7 +93,7 @@ class DatabaseHelper {
     );
   }
 
-  Future<bool> deleteAlarm(String id) async {
+  Future<bool> deleteAlarm(int id) async {
     final Database db = await database;
     try{
       db.delete(

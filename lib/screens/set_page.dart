@@ -14,9 +14,9 @@ import 'empty_page.dart';
 
 class SetPage extends StatefulWidget {
 
-  //includeId가 false면 그냥 알람추가, true면 저장된알람 수정
+  //includeId가 false면 알람추가, true면 저장된 알람 수정
   final bool includeId;
-  final String alarmId;
+  final int alarmId;
 
   const SetPage({
     Key? key,
@@ -78,9 +78,6 @@ class _SetPageState extends State<SetPage> {
   bool _holidaySwitch = false;
   bool _soundSwitch = false;
 
-  //db알람 id 생성용
-  var uuid = Uuid().v4();
-
   //현재 선택한 알람의 정보
   MyAlarm? _thisAlarm;
   bool switchValue = false;
@@ -107,7 +104,7 @@ class _SetPageState extends State<SetPage> {
     setState(() {
       _thisAlarm = myalarmInfo;
       //print(_thisAlarm.toString());
-      uuid = widget.alarmId;
+      //uuid = widget.alarmId;
       _selectedTime = DateTime.parse(_thisAlarm!.alarmTime);
       _nameController = TextEditingController(text : _thisAlarm!.alarmName);
 
@@ -334,14 +331,26 @@ class _SetPageState extends State<SetPage> {
               ),
               CupertinoButton(
                 onPressed: () async {
-                  await DatabaseHelper.instance.insertAlarm(
-                    MyAlarm(
-                      id: uuid.toString(),
-                      alarmName: _nameController.text, 
-                      alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                      usingAlarmSound: _soundSwitch.toString(),
-                    )
-                  );
+                  if(widget.includeId == false){//알람 추가
+                    await DatabaseHelper.instance.insertAlarm(
+                      MyAlarm(
+                        id: 0,
+                        alarmName: _nameController.text, 
+                        alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
+                        usingAlarmSound: _soundSwitch.toString(),
+                      )
+                    );
+                  }
+                  else if(widget.includeId == true){//알람 수정
+                      await DatabaseHelper.instance.updateAlarm(
+                      MyAlarm(
+                        id: widget.alarmId,
+                        alarmName: _nameController.text, 
+                        alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
+                        usingAlarmSound: _soundSwitch.toString(),
+                      )
+                    );
+                  }
                   Navigator.of(context).pop(true);
                 },
                 child: Text('저장', style: TextStyle(fontSize: 20),)

@@ -1,5 +1,5 @@
 class MyAlarm {
-  final String id;
+  final int id;
   final String alarmName;
   final String alarmTime;
   final String usingAlarmSound;
@@ -14,6 +14,11 @@ class MyAlarm {
   );
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'alarmName':alarmName, 'alarmTime':alarmTime, 'usingAlarmSound':usingAlarmSound};
+    return {'alarmName':alarmName, 'alarmTime':alarmTime, 'usingAlarmSound':usingAlarmSound};
   }
+  
+  Map<String, dynamic> toUpdateMap() {
+    return {'alarmName':alarmName, 'alarmTime':alarmTime, 'usingAlarmSound':usingAlarmSound};
+  }
+  
 }
