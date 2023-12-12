@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 
 import '/dbs/my_alarms.dart';
 import '/dbs/dbConfig.dart';
 import '/widgets/setting_block.dart';
+import '/widgets/notification.dart';
 import 'holiday_page.dart';
 import 'sound_page.dart';
 import 'empty_page.dart';
@@ -337,7 +337,7 @@ class _SetPageState extends State<SetPage> {
                         id: 0,
                         alarmName: _nameController.text, 
                         alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                        usingAlarmSound: _soundSwitch.toString(),
+                        usingAlarmSound: _soundSwitch? 1 : 0,
                       )
                     );
                   }
@@ -347,10 +347,11 @@ class _SetPageState extends State<SetPage> {
                         id: widget.alarmId,
                         alarmName: _nameController.text, 
                         alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                        usingAlarmSound: _soundSwitch.toString(),
+                        usingAlarmSound:  _soundSwitch? 1 : 0,
                       )
                     );
                   }
+                  if (!mounted) return;
                   Navigator.of(context).pop(true);
                 },
                 child: Text('저장', style: TextStyle(fontSize: 20),)

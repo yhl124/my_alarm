@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 import '/dbs/my_alarms.dart';
 import '/dbs/dbConfig.dart';
+import '/widgets/notification.dart';
 
 class AlarmBlock extends StatefulWidget {
   final int alarmId;
@@ -20,12 +21,13 @@ class _AlarmBlockState extends State<AlarmBlock> {
 
   //현재 선택한 알람의 정보
   MyAlarm? _thisAlarm;
-  bool switchValue = false;
+  bool switchValue = true;
 
   @override
   void initState() {
     super.initState();
     _getAlarmInfo();
+    FlutterLocalNotification.init();
     //print(_thisAlarm.toString());
   }
 
@@ -53,6 +55,13 @@ class _AlarmBlockState extends State<AlarmBlock> {
             onChanged: (value) {
               setState(() {
                 switchValue = value;
+                if(value == true){
+                  //알람 스위치 on이면 알람에 등록 또는 해제
+                  FlutterLocalNotification.scheduledNotification();
+                }
+                else if(value == false){
+                  if (_thisAlarm != null) FlutterLocalNotification.cancelNotification(_thisAlarm!.id);
+                }
               });
             }
           ),

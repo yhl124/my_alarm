@@ -101,7 +101,7 @@ class _MainPageState extends State<MainPage> {
             child: ListView.builder(
               itemCount: _myalarms.length,
               itemBuilder: (context, index) {
-                return Dismissible(
+                return Dismissible(//밀어서 삭제
                   key: ValueKey<MyAlarm>(_myalarms[index]),
                   background: Container(
                     color: Color.fromARGB(255, 240, 62, 49),
@@ -112,11 +112,12 @@ class _MainPageState extends State<MainPage> {
                   onDismissed: (direction) {
                     setState(() {
                       DatabaseHelper.instance.deleteAlarm(_myalarms[index].id);
+                      FlutterLocalNotification.cancelNotification(_myalarms[index].id);
                       _myalarms.removeAt(index);
                       //_refreshAlarmList();
                     });
                   },
-                  child: InkWell(
+                  child: InkWell(//저장된 알람 블록 관리
                     onTap: () {
                       Navigator.push(
                         context,

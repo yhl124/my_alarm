@@ -69,7 +69,7 @@ class FlutterLocalNotification {
       0,
       'scheduled title',
       'scheduled body',
-      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 10)),
+      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
       const NotificationDetails(
         android: androidNotificationDetails
       ),
@@ -78,4 +78,9 @@ class FlutterLocalNotification {
           UILocalNotificationDateInterpretation.absoluteTime
     );
   }
+
+  static Future<void> cancelNotification(int id) async {
+    await flutterLocalNotificationsPlugin.cancel(id);
+  }
 }
+

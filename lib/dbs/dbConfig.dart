@@ -20,10 +20,11 @@ class DatabaseHelper {
       join(await getDatabasesPath(), 'alarm_database.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, alarmName TEXT, alarmTime TEXT, usingAlarmSound TEXT)',
+          'CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, '
+          'alarmName TEXT, alarmTime TEXT NOT NULL, usingAlarmSound INTEGER NOT NULL)',
         );
       },
-      version: 4,
+      version: 5,
       onUpgrade: _onUpgrade
     );
   }
@@ -31,7 +32,8 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if(oldVersion < newVersion) {
       await db.execute("DROP TABLE IF EXISTS alarms");
-      await db.execute('CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, alarmName TEXT, alarmTime TEXT, usingAlarmSound TEXT)');
+      await db.execute('CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, '
+                        'alarmName TEXT, alarmTime TEXT NOT NULL, usingAlarmSound INTEGER NOT NULL)');
     }
   }
 
