@@ -57,7 +57,7 @@ class FlutterLocalNotification {
         0, 'test title', 'test body', notificationDetails);
   }
 
-  static Future<void> scheduledNotification() async {
+  static Future<void> scheduledNotification(int id) async {
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails('channel id', 'channel name',
             channelDescription: 'channel description',
@@ -66,7 +66,7 @@ class FlutterLocalNotification {
             showWhen: false);
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      0,
+      id,
       'scheduled title',
       'scheduled body',
       tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),

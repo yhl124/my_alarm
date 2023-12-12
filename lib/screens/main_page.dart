@@ -77,6 +77,7 @@ class _MainPageState extends State<MainPage> {
                       ).then((value) {
                         if(value != null && value as bool){
                           _refreshAlarmList();
+                          if (_myalarms.isNotEmpty) FlutterLocalNotification.scheduledNotification(_myalarms.last.id);
                         }
                       });
                     },
@@ -125,6 +126,7 @@ class _MainPageState extends State<MainPage> {
                       ).then((value) {
                         if(value != null && value as bool){
                           _refreshAlarmList();
+                          if (_myalarms.isNotEmpty) FlutterLocalNotification.scheduledNotification(_myalarms[index].id);
                         }
                       });
                     },
