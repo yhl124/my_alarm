@@ -21,10 +21,10 @@ class DatabaseHelper {
       onCreate: (db, version) {
         return db.execute(
           'CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-          'alarmName TEXT, alarmTime TEXT NOT NULL, usingAlarmSound INTEGER NOT NULL)',
+          'alarmName TEXT, alarmTime TEXT NOT NULL, alarmDay TEXT NOT NULL, usingAlarmSound INTEGER NOT NULL)',
         );
       },
-      version: 5,
+      version: 6,
       onUpgrade: _onUpgrade
     );
   }
@@ -33,7 +33,7 @@ class DatabaseHelper {
     if(oldVersion < newVersion) {
       await db.execute("DROP TABLE IF EXISTS alarms");
       await db.execute('CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-                        'alarmName TEXT, alarmTime TEXT NOT NULL, usingAlarmSound INTEGER NOT NULL)');
+                        'alarmName TEXT, alarmTime TEXT NOT NULL, alarmDay TEXT NOT NULL, usingAlarmSound INTEGER NOT NULL)');
     }
   }
 
@@ -78,6 +78,7 @@ class DatabaseHelper {
         id: data[i]['id'], 
         alarmName: data[i]['alarmName'], 
         alarmTime: data[i]['alarmTime'], 
+        alarmDay: data[i]['alarmDay'], 
         usingAlarmSound: data[i]['usingAlarmSound']
       );
     });
@@ -90,7 +91,8 @@ class DatabaseHelper {
     return MyAlarm(
       id: data[0]['id'], 
       alarmName: data[0]['alarmName'], 
-      alarmTime: data[0]['alarmTime'], 
+      alarmTime: data[0]['alarmTime'],
+      alarmDay: data[0]['alarmDay'], 
       usingAlarmSound: data[0]['usingAlarmSound']
     );
   }

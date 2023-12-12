@@ -77,6 +77,7 @@ class _MainPageState extends State<MainPage> {
                       ).then((value) {
                         if(value != null && value as bool){
                           _refreshAlarmList();
+                          //이 if문에서 알람id에 있는 날짜 정보가 요일인지 아닌지에 따라 다른 메소드 사용
                           if (_myalarms.isNotEmpty) FlutterLocalNotification.scheduledNotification(_myalarms.last.id);
                         }
                       });
@@ -124,8 +125,9 @@ class _MainPageState extends State<MainPage> {
                         context,
                         MaterialPageRoute(builder: (context) => SetPage(includeId: true, alarmId: _myalarms[index].id)),
                       ).then((value) {
-                        if(value != null && value as bool){
+                        if(value != null && value as bool && value != false){
                           _refreshAlarmList();
+                          //이 if문에서 알람id에 있는 날짜 정보가 요일인지 아닌지에 따라 다른 메소드 사용
                           if (_myalarms.isNotEmpty) FlutterLocalNotification.scheduledNotification(_myalarms[index].id);
                         }
                       });

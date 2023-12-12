@@ -66,11 +66,12 @@ class _SetPageState extends State<SetPage> {
   bool _selectedToggles = false;
   //요일 선택 리스트, 나중에는 Days의 개수나 dayOfTheWeek의 개수 가져와서 그 크기의 false리스트 만들면 될듯
   final List<bool> _toggleButtonsSelection = [false, false, false, false, false, false, false];
-  //알람 울릴 날을 표시하는 텍스트를 위한 리스트
+  //알람 울릴 날을 표시하는 텍스트를 위한 리스트, 최종 선택 날짜에 사용할 string
   List<String> _daysForDisplay = [];
+  String _selectedDays = '';
 
   //알람 이름 설정용
-    GlobalKey<FormState> _textFieldKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _textFieldKey = GlobalKey<FormState>();
   TextEditingController _nameController = TextEditingController();
   String defaultText = '';
 
@@ -92,6 +93,7 @@ class _SetPageState extends State<SetPage> {
     _selectedDate = _beforeSixAM? today: today.add(Duration(days: 1));
     _singleDatePickerValueWithDefaultValue = [_selectedDate,];
     _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+    _selectedDays = _cleanDayString(_daysForDisplay);
 
     if(widget.includeId == true){
       _getAlarmInfo();
@@ -111,6 +113,12 @@ class _SetPageState extends State<SetPage> {
       _pickerKey = GlobalKey();
       _textFieldKey = GlobalKey();
     });
+  }
+
+  String _cleanDayString(List<String> days){
+    String strList = days.toString();
+    String result = strList.substring(1, strList.length-1).replaceFirst("매주 ,", "매주 ");
+    return result;
   }
 
   @override
@@ -143,11 +151,13 @@ class _SetPageState extends State<SetPage> {
                        _selectedDate = newTime.isAfter(DateTime.now()) ? newTime : newTime.add(Duration(days:1));
                        _daysForDisplay.clear();
                        _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                       _selectedDays = _cleanDayString(_daysForDisplay);
                     }
                     else if(_selectedCal == true && _selectedToday == true && _selectedToggles == false){
                       _selectedDate = newTime.isAfter(DateTime.now()) ? newTime : newTime.add(Duration(days:1));
                       _daysForDisplay.clear();
                       _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                      _selectedDays = _cleanDayString(_daysForDisplay);
                     }
                     _selectedTime = newTime;
                   });
@@ -160,9 +170,9 @@ class _SetPageState extends State<SetPage> {
               height: MediaQuery.of(context).size.height * 0.08,
               child: Row(
                 children: [
-                  Text(_daysForDisplay.toString(), style: TextStyle(fontSize: 15),),//선택한 날짜 or 요일 표시 텍스트
+                  Text(_selectedDays, style: TextStyle(fontSize: 15),),//선택한 날짜 or 요일 표시 텍스트
                   Expanded(child: Container(),),
-                  CupertinoButton(//날짜 선택 버튼
+                  CupertinoButton(//날짜 선택 달력 버튼
                     padding: EdgeInsets.all(5),
                     onPressed: () {
                       showCalendarDatePicker2Dialog(//달력에서 날짜선택
@@ -187,6 +197,7 @@ class _SetPageState extends State<SetPage> {
                             //달력에서 선택하면 리스트를 비우고 그 날짜 추가
                             _daysForDisplay.clear();
                             _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                            _selectedDays = _cleanDayString(_daysForDisplay);
                             //달력내 선택날짜 변경
                             _singleDatePickerValueWithDefaultValue.clear();
                             _singleDatePickerValueWithDefaultValue.add(_selectedDate);
@@ -224,11 +235,13 @@ class _SetPageState extends State<SetPage> {
                       _selectedToggles = true;
                       selectedIndexes.forEach((index) {
                         _daysForDisplay.add(dayOfTheWeek[index].$2);
+                      _selectedDays = _cleanDayString(_daysForDisplay);
                       },);
                       if(selectedIndexes.isEmpty){
                         _selectedToggles = false;
                         _daysForDisplay.clear();
                         _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
+                        _selectedDays = _cleanDayString(_daysForDisplay);
                       }
                     });
                   },
@@ -325,7 +338,7 @@ class _SetPageState extends State<SetPage> {
             children: [
               CupertinoButton(
                 onPressed: () {
-                  Navigator.of(context).pop(true);
+                  Navigator.of(context).pop(false);
                 },
                 child: Text('취소', style: TextStyle(fontSize: 20),)
               ),
@@ -337,6 +350,7 @@ class _SetPageState extends State<SetPage> {
                         id: 0,
                         alarmName: _nameController.text, 
                         alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
+                        alarmDay : _selectedDays,
                         usingAlarmSound: _soundSwitch? 1 : 0,
                       )
                     );
@@ -347,6 +361,7 @@ class _SetPageState extends State<SetPage> {
                         id: widget.alarmId,
                         alarmName: _nameController.text, 
                         alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
+                        alarmDay : _selectedDays,
                         usingAlarmSound:  _soundSwitch? 1 : 0,
                       )
                     );

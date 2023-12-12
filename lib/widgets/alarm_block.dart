@@ -46,11 +46,12 @@ class _AlarmBlockState extends State<AlarmBlock> {
       child: Container(
         height: MediaQuery.of(context).size.height * 0.12,
         child: Row(children: [
-          if (_thisAlarm != null)
-            Text(_thisAlarm!.alarmTime),
+          if (_thisAlarm != null)//알람 울리는 시간 표시
+            Text(_thisAlarm!.alarmTime.split(' ')[1].toString()),
           Expanded(child: Container(),),
-          Text('요일'),//전부면 매일로, 부분이면 부분만
-          CupertinoSwitch(
+          if (_thisAlarm != null)//알람 울리는 날 표시
+            Text(_thisAlarm!.alarmDay),
+          CupertinoSwitch(//알람 온오프 스위치
             value: switchValue, 
             onChanged: (value) {
               setState(() {
