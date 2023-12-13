@@ -24,8 +24,8 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     _refreshAlarmList();
     
-    FlutterLocalNotification.init();
 
+    FlutterLocalNotification.init();
     Future.delayed(const Duration(seconds: 3),
       FlutterLocalNotification.requestNotificationPermission());
   }
@@ -76,10 +76,16 @@ class _MainPageState extends State<MainPage> {
                         MaterialPageRoute(builder: (context) => SetPage(includeId:false, alarmId: 0,)),
                       ).then((value) {
                         if(value != null && value as bool){
-                          _refreshAlarmList();
-                          //이 if문에서 알람id에 있는 날짜 정보가 요일인지 아닌지에 따라 다른 메소드 사용
-                          if (_myalarms.isNotEmpty) FlutterLocalNotification.scheduledNotification(_myalarms.last.id);
-                        }
+                          _refreshAlarmList().then((value) {
+                            //print(_myalarms.last.alarmDay);
+                            if (_myalarms.last.alarmDay.substring(0,2) == '매주'){//요일 선택
+                              FlutterLocalNotification.scheduleYearlyNotification(_myalarms.last.id);
+                            }
+                            else{//날짜선택
+                              FlutterLocalNotification.scheduledNotification(_myalarms.last.id, _myalarms.last.alarmDay, _myalarms.last.alarmTime);
+                            } 
+                          });
+                        } 
                       });
                     },
                     child: Icon(CupertinoIcons.add, color: Color.fromARGB(255, 104, 93, 93)),
@@ -121,14 +127,19 @@ class _MainPageState extends State<MainPage> {
                   },
                   child: InkWell(//저장된 알람 블록 관리
                     onTap: () {
-                      Navigator.push(
+                      Navigator.push(//누르면 알람 수정
                         context,
                         MaterialPageRoute(builder: (context) => SetPage(includeId: true, alarmId: _myalarms[index].id)),
                       ).then((value) {
                         if(value != null && value as bool && value != false){
-                          _refreshAlarmList();
-                          //이 if문에서 알람id에 있는 날짜 정보가 요일인지 아닌지에 따라 다른 메소드 사용
-                          if (_myalarms.isNotEmpty) FlutterLocalNotification.scheduledNotification(_myalarms[index].id);
+                          _refreshAlarmList().then((value) {
+                            if(_myalarms[index].alarmDay.substring(0,2) == '매주'){//요일 선택
+                              FlutterLocalNotification.scheduleYearlyNotification(_myalarms[index].id);
+                            }
+                            else{//날짜선택
+                              FlutterLocalNotification.scheduledNotification(_myalarms[index].id, _myalarms[index].alarmDay, _myalarms[index].alarmTime);
+                            }
+                          });
                         }
                       });
                     },

@@ -28,16 +28,26 @@ class SetPage extends StatefulWidget {
   State<SetPage> createState() => _SetPageState();
 }
 
-enum Days {sun,mon,tue,wed,tur,fri,sat}
+enum Days {sunday,monday,tuesday,wednesday,thursday,friday,saturday}
 const List<(Days, String)> dayOfTheWeek = <(Days, String)>[
-  (Days.sun, '일'),
-  (Days.mon, '월'),
-  (Days.tue, '화'),
-  (Days.wed, '수'),
-  (Days.tur, '목'),
-  (Days.fri, '금'),
-  (Days.sat, '토'),
+  (Days.sunday, '일'),
+  (Days.monday, '월'),
+  (Days.tuesday, '화'),
+  (Days.wednesday, '수'),
+  (Days.thursday, '목'),
+  (Days.friday, '금'),
+  (Days.saturday, '토'),
 ];
+
+final dayToDateTimeMap = {
+  Days.sunday: DateTime.sunday,
+  Days.monday: DateTime.monday,
+  Days.tuesday: DateTime.tuesday,
+  Days.wednesday: DateTime.wednesday,
+  Days.thursday: DateTime.thursday,
+  Days.friday: DateTime.friday,
+  Days.saturday: DateTime.saturday,
+};
 
 class _SetPageState extends State<SetPage> {
   //오전 6시 이전 체크용, 0~5.99 true/ 6~23.99 false
@@ -68,7 +78,7 @@ class _SetPageState extends State<SetPage> {
   final List<bool> _toggleButtonsSelection = [false, false, false, false, false, false, false];
   //알람 울릴 날을 표시하는 텍스트를 위한 리스트, 최종 선택 날짜에 사용할 string
   List<String> _daysForDisplay = [];
-  String _selectedDays = '';
+  List<DateTime> _selectedDays = [];
 
   //알람 이름 설정용
   GlobalKey<FormState> _textFieldKey = GlobalKey<FormState>();
@@ -90,10 +100,10 @@ class _SetPageState extends State<SetPage> {
     //지금이 오전 6시이전인지 체크, 이전이면 true
     _beforeSixAM = DateTime.now().isBefore(sixAM) ? true : false;
     //오전6시 이후면 기본 선택날짜는 내일
-    _selectedDate = _beforeSixAM? today: today.add(Duration(days: 1));
+    _selectedDate = _beforeSixAM? sixAM: sixAM.add(Duration(days: 1));
     _singleDatePickerValueWithDefaultValue = [_selectedDate,];
     _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
-    _selectedDays = _cleanDayString(_daysForDisplay);
+    _selectedDays.add(_selectedDate);
 
     if(widget.includeId == true){
       _getAlarmInfo();
@@ -151,13 +161,15 @@ class _SetPageState extends State<SetPage> {
                        _selectedDate = newTime.isAfter(DateTime.now()) ? newTime : newTime.add(Duration(days:1));
                        _daysForDisplay.clear();
                        _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
-                       _selectedDays = _cleanDayString(_daysForDisplay);
+                       _selectedDays.clear();
+                       _selectedDays.add(_selectedDate);
                     }
                     else if(_selectedCal == true && _selectedToday == true && _selectedToggles == false){
                       _selectedDate = newTime.isAfter(DateTime.now()) ? newTime : newTime.add(Duration(days:1));
                       _daysForDisplay.clear();
                       _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
-                      _selectedDays = _cleanDayString(_daysForDisplay);
+                      _selectedDays.clear();
+                      _selectedDays.add(_selectedDate);
                     }
                     _selectedTime = newTime;
                   });
@@ -170,7 +182,7 @@ class _SetPageState extends State<SetPage> {
               height: MediaQuery.of(context).size.height * 0.08,
               child: Row(
                 children: [
-                  Text(_selectedDays, style: TextStyle(fontSize: 15),),//선택한 날짜 or 요일 표시 텍스트
+                  Text(_cleanDayString(_daysForDisplay), style: TextStyle(fontSize: 15),),//선택한 날짜 or 요일 표시 텍스트
                   Expanded(child: Container(),),
                   CupertinoButton(//날짜 선택 달력 버튼
                     padding: EdgeInsets.all(5),
@@ -197,7 +209,8 @@ class _SetPageState extends State<SetPage> {
                             //달력에서 선택하면 리스트를 비우고 그 날짜 추가
                             _daysForDisplay.clear();
                             _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
-                            _selectedDays = _cleanDayString(_daysForDisplay);
+                            _selectedDays.clear();
+                            _selectedDays.add(_selectedDate);
                             //달력내 선택날짜 변경
                             _singleDatePickerValueWithDefaultValue.clear();
                             _singleDatePickerValueWithDefaultValue.add(_selectedDate);
@@ -231,17 +244,19 @@ class _SetPageState extends State<SetPage> {
                       }
                       //출력용 리스트에 요일 추가
                       _daysForDisplay.clear();
+                      _selectedDays.clear();
                       _daysForDisplay.add('매주 ');
                       _selectedToggles = true;
                       selectedIndexes.forEach((index) {
                         _daysForDisplay.add(dayOfTheWeek[index].$2);
-                      _selectedDays = _cleanDayString(_daysForDisplay);
+                        _selectedDays.add(dayToDateTimeMap[dayOfTheWeek[index].$1] as DateTime);
                       },);
                       if(selectedIndexes.isEmpty){
                         _selectedToggles = false;
                         _daysForDisplay.clear();
+                        _selectedDays.clear();
                         _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
-                        _selectedDays = _cleanDayString(_daysForDisplay);
+                        _selectedDays.add(dayToDateTimeMap[dayOfTheWeek[index].$1] as DateTime);
                       }
                     });
                   },
@@ -347,10 +362,10 @@ class _SetPageState extends State<SetPage> {
                   if(widget.includeId == false){//알람 추가
                     await DatabaseHelper.instance.insertAlarm(
                       MyAlarm(
-                        id: 0,
+                        id: 0,//그냥 0을 넣음 내부적으로는 autoincrese
                         alarmName: _nameController.text, 
                         alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                        alarmDay : _selectedDays,
+                        alarmDay : _selectedDays.toString().substring(1, _selectedDays.toString().length-1),
                         usingAlarmSound: _soundSwitch? 1 : 0,
                       )
                     );
@@ -361,13 +376,34 @@ class _SetPageState extends State<SetPage> {
                         id: widget.alarmId,
                         alarmName: _nameController.text, 
                         alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                        alarmDay : _selectedDays,
+                        alarmDay : _selectedDays.toString().substring(1, _selectedDays.toString().length-1),
                         usingAlarmSound:  _soundSwitch? 1 : 0,
                       )
                     );
                   }
+
                   if (!mounted) return;
-                  Navigator.of(context).pop(true);
+                  if(_selectedDays[0].isBefore(DateTime.now())){
+                    showCupertinoModalPopup(
+                      context: context, 
+                      builder: (BuildContext context) => CupertinoAlertDialog(
+                        title: const Text('알림'),
+                        content: const Text('현재 이후의 시간을 지정해야 합니다.'),
+                        actions: <CupertinoDialogAction>[
+                          CupertinoDialogAction(
+                            isDefaultAction: true,
+                            onPressed: () {
+                              //Navigator.pop();
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ]
+                      )
+                    );
+                  }
+                  else {
+                    Navigator.of(context).pop(true);
+                  }
                 },
                 child: Text('저장', style: TextStyle(fontSize: 20),)
               ),

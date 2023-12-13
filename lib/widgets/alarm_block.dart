@@ -58,7 +58,7 @@ class _AlarmBlockState extends State<AlarmBlock> {
                 switchValue = value;
                 if(value == true){
                   //알람 스위치 on이면 알람에 등록 또는 해제
-                  if (_thisAlarm != null) FlutterLocalNotification.scheduledNotification(_thisAlarm!.id);
+                  if (_thisAlarm != null) FlutterLocalNotification.scheduledNotification(_thisAlarm!.id, _thisAlarm!.alarmDay, _thisAlarm!.alarmTime);
                 }
                 else if(value == false){
                   if (_thisAlarm != null) FlutterLocalNotification.cancelNotification(_thisAlarm!.id);

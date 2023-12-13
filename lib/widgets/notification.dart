@@ -41,18 +41,22 @@ class FlutterLocalNotification {
         );
   }
 
-  tz.TZDateTime _nextInstanceOfTenAM() {
+  static tz.TZDateTime _nextInstanceOfTime(DateTime forDay, DateTime forTime) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate =
-        tz.TZDateTime(tz.local, now.year, now.month, now.day, 10);
+        tz.TZDateTime(tz.local, forDay.year, forDay.month, forDay.day, forTime.hour, forTime.minute);
+      /*
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
+    */
     return scheduledDate;
   }
 
-  tz.TZDateTime _nextInstanceOfMondayTenAM() {
-    tz.TZDateTime scheduledDate = _nextInstanceOfTenAM();
+  static tz.TZDateTime _nextInstanceOfDayTime() {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = 
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, 10);
     while (scheduledDate.weekday != DateTime.monday) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
@@ -75,7 +79,7 @@ class FlutterLocalNotification {
         0, 'test title', 'test body', notificationDetails);
   }
 
-  static Future<void> scheduledNotification(int id) async {//id랑 시간을 받아와야할듯?
+  static Future<void> scheduledNotification(int id, String day, String time) async {//id, 날짜, 시간필요
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails('channel id', 'channel name',
             channelDescription: 'channel description',
@@ -83,11 +87,14 @@ class FlutterLocalNotification {
             priority: Priority.max,
             showWhen: false);
 
+    //print(day);
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       'scheduled title',
       'scheduled body',
-      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+      //tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+      _nextInstanceOfTime(DateTime.parse(day), DateTime.parse(time)),//여기에 날짜, 시간 전달
       const NotificationDetails(
         android: androidNotificationDetails
       ),
@@ -97,12 +104,12 @@ class FlutterLocalNotification {
     );
   }
 
-  Future<void> _scheduleYearlyMondayTenAMNotification() async {//id, 시간, 요일을 받아와야됨
+  static Future<void> scheduleYearlyNotification(int id) async {//id, 시간, 요일을 받아와야됨
     await flutterLocalNotificationsPlugin.zonedSchedule(
-        0,
+        id,
         'yearly scheduled notification title',
         'yearly scheduled notification body',
-        _nextInstanceOfMondayTenAM(),
+        _nextInstanceOfDayTime(),//여기에 요일 시간 전달
         const NotificationDetails(
           android: AndroidNotificationDetails('yearly notification channel id',
               'yearly notification channel name',
