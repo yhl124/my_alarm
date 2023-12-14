@@ -39,16 +39,6 @@ const List<(Days, String)> dayOfTheWeek = <(Days, String)>[
   (Days.saturday, '토'),
 ];
 
-final dayToDateTimeMap = {
-  Days.sunday: DateTime.sunday,
-  Days.monday: DateTime.monday,
-  Days.tuesday: DateTime.tuesday,
-  Days.wednesday: DateTime.wednesday,
-  Days.thursday: DateTime.thursday,
-  Days.friday: DateTime.friday,
-  Days.saturday: DateTime.saturday,
-};
-
 class _SetPageState extends State<SetPage> {
   //오전 6시 이전 체크용, 0~5.99 true/ 6~23.99 false
   bool _beforeSixAM = false;
@@ -249,14 +239,18 @@ class _SetPageState extends State<SetPage> {
                       _selectedToggles = true;
                       selectedIndexes.forEach((index) {
                         _daysForDisplay.add(dayOfTheWeek[index].$2);
-                        _selectedDays.add(dayToDateTimeMap[dayOfTheWeek[index].$1] as DateTime);
+                        _selectedDays.add(index<today.weekday ? 
+                                          today.add(Duration(days: index-today.weekday+7)) :
+                                          today.add(Duration(days: index-today.weekday)));
                       },);
                       if(selectedIndexes.isEmpty){
                         _selectedToggles = false;
                         _daysForDisplay.clear();
                         _selectedDays.clear();
                         _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
-                        _selectedDays.add(dayToDateTimeMap[dayOfTheWeek[index].$1] as DateTime);
+                        _selectedDays.add(index<today.weekday ? 
+                                          today.add(Duration(days: index-today.weekday+7)) :
+                                          today.add(Duration(days: index-today.weekday)));
                       }
                     });
                   },
@@ -365,7 +359,7 @@ class _SetPageState extends State<SetPage> {
                         id: 0,//그냥 0을 넣음 내부적으로는 autoincrese
                         alarmName: _nameController.text, 
                         alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                        alarmDay : _selectedDays.toString().substring(1, _selectedDays.toString().length-1),
+                        alarmDay : _selectedDays.join(', '),
                         usingAlarmSound: _soundSwitch? 1 : 0,
                       )
                     );
@@ -376,7 +370,7 @@ class _SetPageState extends State<SetPage> {
                         id: widget.alarmId,
                         alarmName: _nameController.text, 
                         alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                        alarmDay : _selectedDays.toString().substring(1, _selectedDays.toString().length-1),
+                        alarmDay : _selectedDays.join(', '),
                         usingAlarmSound:  _soundSwitch? 1 : 0,
                       )
                     );
@@ -446,8 +440,6 @@ class _SetPageState extends State<SetPage> {
               ],
             ),
           ),
-          
-        
         );
       },
     );

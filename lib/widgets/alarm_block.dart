@@ -21,6 +21,7 @@ class _AlarmBlockState extends State<AlarmBlock> {
 
   //현재 선택한 알람의 정보
   MyAlarm? _thisAlarm;
+  List<String>? _alarmDay;
   bool switchValue = true;
 
   @override
@@ -36,6 +37,7 @@ class _AlarmBlockState extends State<AlarmBlock> {
 
     setState(() {
       _thisAlarm = myalarmInfo;
+      _alarmDay = _thisAlarm!.alarmDay.split(', ');
       //print(_thisAlarm.toString());
     });
   }
@@ -49,8 +51,11 @@ class _AlarmBlockState extends State<AlarmBlock> {
           if (_thisAlarm != null)//알람 울리는 시간 표시
             Text(_thisAlarm!.alarmTime.split(' ')[1].toString()),
           Expanded(child: Container(),),
-          if (_thisAlarm != null)//알람 울리는 날 표시
-            Text(_thisAlarm!.alarmDay),
+          if (_alarmDay != null)//알람 울리는 날 표시
+            Text(_alarmDay!.length > 1 
+              ? '매주 ${_alarmDay!.map((e) => DateTime.parse(e).weekday)
+                .map((e) => {7: '일', 1: '월',2: '화',3: '수',4: '목', 5: '금',6: '토'}[e]).toList().join(', ')}'
+              : _alarmDay![0].toString().split(' ')[0]),
           CupertinoSwitch(//알람 온오프 스위치
             value: switchValue, 
             onChanged: (value) {
