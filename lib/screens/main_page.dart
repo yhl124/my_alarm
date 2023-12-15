@@ -79,7 +79,7 @@ class _MainPageState extends State<MainPage> {
                           _refreshAlarmList().then((value) {
                             //print(_myalarms.last.alarmDay);
                             if (_myalarms.last.alarmDay.split(',').length > 1){//요일 선택
-                              FlutterLocalNotification.scheduleYearlyNotification(_myalarms.last.id);
+                              FlutterLocalNotification.scheduleYearlyNotification(_myalarms.last.id, _myalarms.last.alarmDay, _myalarms.last.alarmTime);
                             }
                             else{//날짜선택
                               FlutterLocalNotification.scheduledNotification(_myalarms.last.id, _myalarms.last.alarmDay, _myalarms.last.alarmTime);
@@ -133,8 +133,8 @@ class _MainPageState extends State<MainPage> {
                       ).then((value) {
                         if(value != null && value as bool && value != false){
                           _refreshAlarmList().then((value) {
-                            if(_myalarms.last.alarmDay.split(',').length > 1){//요일 선택
-                              FlutterLocalNotification.scheduleYearlyNotification(_myalarms[index].id);
+                            if(_myalarms[index].alarmDay.split(',').length > 1){//요일 선택
+                              FlutterLocalNotification.scheduleYearlyNotification(_myalarms[index].id, _myalarms[index].alarmDay, _myalarms[index].alarmTime);
                             }
                             else{//날짜선택
                               FlutterLocalNotification.scheduledNotification(_myalarms[index].id, _myalarms[index].alarmDay, _myalarms[index].alarmTime);

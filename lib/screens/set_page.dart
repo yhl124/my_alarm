@@ -353,31 +353,9 @@ class _SetPageState extends State<SetPage> {
               ),
               CupertinoButton(
                 onPressed: () async {
-                  if(widget.includeId == false){//알람 추가
-                    await DatabaseHelper.instance.insertAlarm(
-                      MyAlarm(
-                        id: 0,//그냥 0을 넣음 내부적으로는 autoincrese
-                        alarmName: _nameController.text, 
-                        alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                        alarmDay : _selectedDays.join(', '),
-                        usingAlarmSound: _soundSwitch? 1 : 0,
-                      )
-                    );
-                  }
-                  else if(widget.includeId == true){//알람 수정
-                      await DatabaseHelper.instance.updateAlarm(
-                      MyAlarm(
-                        id: widget.alarmId,
-                        alarmName: _nameController.text, 
-                        alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                        alarmDay : _selectedDays.join(', '),
-                        usingAlarmSound:  _soundSwitch? 1 : 0,
-                      )
-                    );
-                  }
-
-                  if (!mounted) return;
-                  if(_selectedDays[0].isBefore(DateTime.now())){
+                  if(DateTime(_selectedDays[0].year, _selectedDays[0].month, _selectedDays[0].day, _selectedTime.hour, _selectedTime.minute)
+                  .isBefore(DateTime.now())){//선택시간이 현재 이후인지 확인
+                    //if (!mounted) return;
                     showCupertinoModalPopup(
                       context: context, 
                       builder: (BuildContext context) => CupertinoAlertDialog(
@@ -387,7 +365,7 @@ class _SetPageState extends State<SetPage> {
                           CupertinoDialogAction(
                             isDefaultAction: true,
                             onPressed: () {
-                              //Navigator.pop();
+                              Navigator.pop(context);
                             },
                             child: const Text('OK'),
                           ),
@@ -395,7 +373,29 @@ class _SetPageState extends State<SetPage> {
                       )
                     );
                   }
-                  else {
+                  else{
+                    if(widget.includeId == false){//알람 추가
+                      await DatabaseHelper.instance.insertAlarm(
+                        MyAlarm(
+                          id: 0,//그냥 0을 넣음 내부적으로는 autoincrese
+                          alarmName: _nameController.text, 
+                          alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
+                          alarmDay : _selectedDays.join(', '),
+                          usingAlarmSound: _soundSwitch? 1 : 0,
+                        )
+                      );
+                    }
+                    else if(widget.includeId == true){//알람 수정
+                        await DatabaseHelper.instance.updateAlarm(
+                        MyAlarm(
+                          id: widget.alarmId,
+                          alarmName: _nameController.text, 
+                          alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
+                          alarmDay : _selectedDays.join(', '),
+                          usingAlarmSound:  _soundSwitch? 1 : 0,
+                        )
+                      );
+                    }
                     Navigator.of(context).pop(true);
                   }
                 },
