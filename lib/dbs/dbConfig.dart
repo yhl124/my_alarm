@@ -20,11 +20,15 @@ class DatabaseHelper {
       join(await getDatabasesPath(), 'alarm_database.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-          'alarmName TEXT, alarmTime TEXT NOT NULL, alarmDay TEXT NOT NULL, usingAlarmSound INTEGER NOT NULL)',
+          'CREATE TABLE alarms(notiId INTEGER PRIMARY KEY AUTOINCREMENT, '
+          'alarmId TEXT UNIQUE NOT NULL, useDate INTEGER NOT NULL, '
+          'alarmDate TEXT NOT NULL, alarmTime TEXT NOT NULL, alarmName TEXT, '
+          'useHoliday INTEGER NOT NULL, holidayOp INTEGER, '
+          'useSound INTEGER NOT NULL, soundName TEXT, useVibe INT NOT NULL, vibeOp STRING, '
+          'useRepeat INTEGER NOT NULL, repeatOp INTEGER)'
         );
       },
-      version: 6,
+      version: 7,
       onUpgrade: _onUpgrade
     );
   }
@@ -32,8 +36,12 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if(oldVersion < newVersion) {
       await db.execute("DROP TABLE IF EXISTS alarms");
-      await db.execute('CREATE TABLE alarms(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-                        'alarmName TEXT, alarmTime TEXT NOT NULL, alarmDay TEXT NOT NULL, usingAlarmSound INTEGER NOT NULL)');
+      await db.execute('CREATE TABLE alarms(notiId INTEGER PRIMARY KEY AUTOINCREMENT, '
+                        'alarmId TEXT UNIQUE NOT NULL, useDate INTEGER NOT NULL, '
+                        'alarmDate TEXT NOT NULL, alarmTime TEXT NOT NULL, alarmName TEXT, '
+                        'useHoliday INTEGER NOT NULL, holidayOp INTEGER, '
+                        'useSound INTEGER NOT NULL, soundName TEXT, useVibe INT NOT NULL, vibeOp STRING, '
+                        'useRepeat INTEGER NOT NULL, repeatOp INTEGER)');
     }
   }
 
@@ -51,15 +59,15 @@ class DatabaseHelper {
       return false;
     }
   }
-
+/*
   Future<bool> updateAlarm(MyAlarm myalram) async {
     final Database db = await database;
     try{
       db.update(
         'alarms', //위에서 작성한 테이블 이름
-        myalram.toUpdateMap(),
+        myalram.toMap(),
         where: 'id = ?',
-        whereArgs: [myalram.id],
+        whereArgs: [myalram.notiId],
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
       return true;
@@ -68,6 +76,7 @@ class DatabaseHelper {
       return false;
     }
   }
+*/
 
   Future<List<MyAlarm>> selectAlarms() async {
     final Database db = await database;
@@ -75,35 +84,53 @@ class DatabaseHelper {
 
     return List.generate(data.length, (i) {
       return MyAlarm(
-        id: data[i]['id'], 
-        alarmName: data[i]['alarmName'], 
-        alarmTime: data[i]['alarmTime'], 
-        alarmDay: data[i]['alarmDay'], 
-        usingAlarmSound: data[i]['usingAlarmSound']
+        notiId: data[i]['notiId'],
+        alarmId: data[i]['alarmId'],
+        useDate: data[i]['useUpdate'],
+        alarmDate: data[i]['alarmDate'], 
+        alarmTime: data[i]['alarmTime'],
+        alarmName: data[i]['alarmName'],
+        useHoliday: data[i]['useHoliday'],
+        holidayOp: data[i]['holidayOp'],
+        useSound: data[i]['useSound'],
+        soundName: data[i]['soundName'],
+        useVibe: data[i]['useVibe'],
+        vibeOp: data[i]['vibeOp'],
+        useRepeat: data[i]['useRepeat'],
+        repeatOp: data[i]['repeatOp']
       );
     });
   }
 
-  Future<MyAlarm> selectAlarm(int id) async {
+  Future<MyAlarm> selectAlarm(String alarmid) async {
     final Database db = await database;
-    final List<Map<String, dynamic>> data = await db.query('alarms', where: "id = ?", whereArgs: [id]);
+    final List<Map<String, dynamic>> data = await db.query('alarms', where: "alarmId = ?", whereArgs: [alarmid]);
 
     return MyAlarm(
-      id: data[0]['id'], 
-      alarmName: data[0]['alarmName'], 
+      notiId: data[0]['notiId'],
+      alarmId: data[0]['alarmId'],
+      useDate: data[0]['useUpdate'],
+      alarmDate: data[0]['alarmDate'], 
       alarmTime: data[0]['alarmTime'],
-      alarmDay: data[0]['alarmDay'], 
-      usingAlarmSound: data[0]['usingAlarmSound']
+      alarmName: data[0]['alarmName'],
+      useHoliday: data[0]['useHoliday'],
+      holidayOp: data[0]['holidayOp'],
+      useSound: data[0]['useSound'],
+      soundName: data[0]['soundName'],
+      useVibe: data[0]['useVibe'],
+      vibeOp: data[0]['vibeOp'],
+      useRepeat: data[0]['useRepeat'],
+      repeatOp: data[0]['repeatOp']
     );
   }
 
-  Future<bool> deleteAlarm(int id) async {
+  Future<bool> deleteAlarm(String alarmid) async {
     final Database db = await database;
     try{
       db.delete(
         'alarms',
-        where: "id = ?",
-        whereArgs: [id],
+        where: "alarmId = ?",
+        whereArgs: [alarmid],
       );
       return true;
     }
@@ -111,9 +138,6 @@ class DatabaseHelper {
       return false;
     }
   }
-
-
-
 }
 
 

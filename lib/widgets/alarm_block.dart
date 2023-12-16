@@ -6,7 +6,7 @@ import '/dbs/dbConfig.dart';
 import '/widgets/notification.dart';
 
 class AlarmBlock extends StatefulWidget {
-  final int alarmId;
+  final String alarmId;
 
   const AlarmBlock({
     Key? key,
@@ -21,7 +21,7 @@ class _AlarmBlockState extends State<AlarmBlock> {
 
   //현재 선택한 알람의 정보
   MyAlarm? _thisAlarm;
-  List<String>? _alarmDay;
+  List<String>? _alarmDate;
   bool switchValue = true;
 
   @override
@@ -37,7 +37,7 @@ class _AlarmBlockState extends State<AlarmBlock> {
 
     setState(() {
       _thisAlarm = myalarmInfo;
-      _alarmDay = _thisAlarm!.alarmDay.split(', ');
+      _alarmDate = _thisAlarm!.alarmDate.split(', ');
       //print(_thisAlarm.toString());
     });
   }
