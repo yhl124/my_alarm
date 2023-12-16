@@ -86,7 +86,7 @@ class DatabaseHelper {
       return MyAlarm(
         notiId: data[i]['notiId'],
         alarmId: data[i]['alarmId'],
-        useDate: data[i]['useUpdate'],
+        useDate: data[i]['useDate'],
         alarmDate: data[i]['alarmDate'], 
         alarmTime: data[i]['alarmTime'],
         alarmName: data[i]['alarmName'],
@@ -102,6 +102,22 @@ class DatabaseHelper {
     });
   }
 
+  Future<List<Map<String, dynamic>>> selectblockAlarms() async {
+    final Database db = await database;
+    final List<Map<String, dynamic>> data = await db.query('alarms');
+
+    return List.generate(data.length, (i) {
+      return {
+        'notiId': data[i]['notiId'],
+        'alarmId': data[i]['alarmId'],
+        'useDate': data[i]['useDate'],
+        'alarmDate': data[i]['alarmDate'], 
+        'alarmTime': data[i]['alarmTime'],
+        'alarmName': data[i]['alarmName']
+      };
+    });
+  }
+
   Future<MyAlarm> selectAlarm(String alarmid) async {
     final Database db = await database;
     final List<Map<String, dynamic>> data = await db.query('alarms', where: "alarmId = ?", whereArgs: [alarmid]);
@@ -109,7 +125,7 @@ class DatabaseHelper {
     return MyAlarm(
       notiId: data[0]['notiId'],
       alarmId: data[0]['alarmId'],
-      useDate: data[0]['useUpdate'],
+      useDate: data[0]['useDate'],
       alarmDate: data[0]['alarmDate'], 
       alarmTime: data[0]['alarmTime'],
       alarmName: data[0]['alarmName'],
