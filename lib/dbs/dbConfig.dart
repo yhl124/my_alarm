@@ -28,7 +28,7 @@ class DatabaseHelper {
           'useRepeat INTEGER NOT NULL, repeatOp INTEGER)'
         );
       },
-      version: 7,
+      version: 8,
       onUpgrade: _onUpgrade
     );
   }
