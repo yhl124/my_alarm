@@ -17,7 +17,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  List<MyAlarm> _myalarms = [];
+  List<Map<String, dynamic>> _myalarms = [];
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _refreshAlarmList() async {
-    final List<MyAlarm> myalarmList = await DatabaseHelper.instance.selectAlarms();
+    final List<Map<String, dynamic>> myalarmList = await DatabaseHelper.instance.selectmainAlarms();
 
     setState(() {
       _myalarms = myalarmList;
@@ -76,16 +76,8 @@ class _MainPageState extends State<MainPage> {
                         MaterialPageRoute(builder: (context) => SetPage(includeId:false, alarmId: 0,)),
                       ).then((value) {
                         if(value != null && value as bool){
-                          _refreshAlarmList().then((value) {
-                            //print(_myalarms.last.alarmDay);
-                            if (_myalarms.last.alarmDay.split(',').length > 1){//요일 선택
-                              FlutterLocalNotification.scheduleYearlyNotification(_myalarms.last.id, _myalarms.last.alarmDay, _myalarms.last.alarmTime);
-                            }
-                            else{//날짜선택
-                              FlutterLocalNotification.scheduledNotification(_myalarms.last.id, _myalarms.last.alarmDay, _myalarms.last.alarmTime);
-                            } 
-                          });
-                        } 
+                          _refreshAlarmList();
+                        }
                       });
                     },
                     child: Icon(CupertinoIcons.add, color: Color.fromARGB(255, 104, 93, 93)),
@@ -110,7 +102,7 @@ class _MainPageState extends State<MainPage> {
               itemCount: _myalarms.length,
               itemBuilder: (context, index) {
                 return Dismissible(//밀어서 삭제
-                  key: ValueKey<MyAlarm>(_myalarms[index]),
+                  key: ValueKey<dynamic>(_myalarms[index]),
                   background: Container(
                     color: Color.fromARGB(255, 240, 62, 49),
                     alignment: Alignment.centerRight,
@@ -119,8 +111,8 @@ class _MainPageState extends State<MainPage> {
                   ),
                   onDismissed: (direction) {
                     setState(() {
-                      DatabaseHelper.instance.deleteAlarm(_myalarms[index].id);
-                      FlutterLocalNotification.cancelNotification(_myalarms[index].id);
+                      DatabaseHelper.instance.deleteAlarm(_myalarms[index]['alarmId']);
+                      FlutterLocalNotification.cancelNotification(_myalarms[index]['alarmId']);
                       _myalarms.removeAt(index);
                       //_refreshAlarmList();
                     });
@@ -129,21 +121,14 @@ class _MainPageState extends State<MainPage> {
                     onTap: () {
                       Navigator.push(//누르면 알람 수정
                         context,
-                        MaterialPageRoute(builder: (context) => SetPage(includeId: true, alarmId: _myalarms[index].id)),
+                        MaterialPageRoute(builder: (context) => SetPage(includeId: true, alarmId: _myalarms[index]['alarmId'])),
                       ).then((value) {
                         if(value != null && value as bool && value != false){
-                          _refreshAlarmList().then((value) {
-                            if(_myalarms[index].alarmDay.split(',').length > 1){//요일 선택
-                              FlutterLocalNotification.scheduleYearlyNotification(_myalarms[index].id, _myalarms[index].alarmDay, _myalarms[index].alarmTime);
-                            }
-                            else{//날짜선택
-                              FlutterLocalNotification.scheduledNotification(_myalarms[index].id, _myalarms[index].alarmDay, _myalarms[index].alarmTime);
-                            }
-                          });
+                          _refreshAlarmList();
                         }
                       });
                     },
-                    child: AlarmBlock(alarmId: _myalarms[index].id)
+                    child: AlarmBlock(alarmId: _myalarms[index]['alarmId'])
                   ),
                 );
               },

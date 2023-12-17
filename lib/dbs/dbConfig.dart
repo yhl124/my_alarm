@@ -21,7 +21,7 @@ class DatabaseHelper {
       onCreate: (db, version) {
         return db.execute(
           'CREATE TABLE alarms(notiId INTEGER PRIMARY KEY AUTOINCREMENT, '
-          'alarmId TEXT UNIQUE NOT NULL, useDate INTEGER NOT NULL, '
+          'alarmId TEXT NOT NULL, useDate INTEGER NOT NULL, '
           'alarmDate TEXT NOT NULL, alarmTime TEXT NOT NULL, alarmName TEXT, '
           'useHoliday INTEGER NOT NULL, holidayOp INTEGER, '
           'useSound INTEGER NOT NULL, soundName TEXT, useVibe INT NOT NULL, vibeOp STRING, '
@@ -37,7 +37,7 @@ class DatabaseHelper {
     if(oldVersion < newVersion) {
       await db.execute("DROP TABLE IF EXISTS alarms");
       await db.execute('CREATE TABLE alarms(notiId INTEGER PRIMARY KEY AUTOINCREMENT, '
-                        'alarmId TEXT UNIQUE NOT NULL, useDate INTEGER NOT NULL, '
+                        'alarmId TEXT NOT NULL, useDate INTEGER NOT NULL, '
                         'alarmDate TEXT NOT NULL, alarmTime TEXT NOT NULL, alarmName TEXT, '
                         'useHoliday INTEGER NOT NULL, holidayOp INTEGER, '
                         'useSound INTEGER NOT NULL, soundName TEXT, useVibe INT NOT NULL, vibeOp STRING, '
@@ -102,18 +102,33 @@ class DatabaseHelper {
     });
   }
 
-  Future<List<Map<String, dynamic>>> selectblockAlarms() async {
+    //alarm_block에 사용할 select
+    Future<List<Map<String, dynamic>>> selectblockAlarms(String alarmId) async {
+      final Database db = await database;
+      final List<Map<String, dynamic>> data = await db.query('alarms', where: "alarmId = ?", whereArgs: [alarmId]);
+
+      return List.generate(data.length, (i) {
+        return {
+          'notiId': data[i]['notiId'],
+          'alarmId': data[i]['alarmId'],
+          'useDate': data[i]['useDate'],
+          'alarmDate': data[i]['alarmDate'], 
+          'alarmTime': data[i]['alarmTime'],
+          'alarmName': data[i]['alarmName']
+        };
+      });
+    }
+
+    //main에서 사용할 select
+    Future<List<Map<String, dynamic>>> selectmainAlarms() async {
     final Database db = await database;
-    final List<Map<String, dynamic>> data = await db.query('alarms');
+    final List<Map<String, dynamic>> data = await db.query('alarms' , groupBy: 'alarmId');
 
     return List.generate(data.length, (i) {
       return {
         'notiId': data[i]['notiId'],
         'alarmId': data[i]['alarmId'],
-        'useDate': data[i]['useDate'],
-        'alarmDate': data[i]['alarmDate'], 
-        'alarmTime': data[i]['alarmTime'],
-        'alarmName': data[i]['alarmName']
+        'useDate': data[i]['useDate']
       };
     });
   }

@@ -19,9 +19,8 @@ class AlarmBlock extends StatefulWidget {
 
 class _AlarmBlockState extends State<AlarmBlock> {
 
-  //현재 선택한 알람의 정보
-  MyAlarm? _thisAlarm;
-  List<String>? _alarmDate;
+  //현재 선택한 알람의 정보, 요일사용이면 여러개 아니면 한개
+  List<Map<String, dynamic>> _thisAlarm = [];
   bool switchValue = true;
 
   @override
@@ -33,11 +32,10 @@ class _AlarmBlockState extends State<AlarmBlock> {
   }
 
   Future<void> _getAlarmInfo() async {
-    final MyAlarm myalarmInfo = await DatabaseHelper.instance.selectAlarm(widget.alarmId);
+    final List<Map<String, dynamic>> myalarmInfo = await DatabaseHelper.instance.selectblockAlarms(widget.alarmId);
 
     setState(() {
       _thisAlarm = myalarmInfo;
-      _alarmDate = _thisAlarm!.alarmDate.split(', ');
       //print(_thisAlarm.toString());
     });
   }
@@ -48,25 +46,36 @@ class _AlarmBlockState extends State<AlarmBlock> {
       child: Container(
         height: MediaQuery.of(context).size.height * 0.12,
         child: Row(children: [
-          if (_thisAlarm != null)//알람 울리는 시간 표시
-            Text(_thisAlarm!.alarmTime.split(' ')[1].toString()),
+          //알람 울리는 시간 표시
+          Text(_thisAlarm[0]['alarmTime'].split(' ')[1].toString()),
           Expanded(child: Container(),),
-          if (_alarmDay != null)//알람 울리는 날 표시
-            Text(_alarmDay!.length > 1 
-              ? '매주 ${_alarmDay!.map((e) => DateTime.parse(e).weekday)
-                .map((e) => {7: '일', 1: '월',2: '화',3: '수',4: '목', 5: '금',6: '토'}[e]).toList().join(', ')}'
-              : _alarmDay![0].toString().split(' ')[0]),
+          //알람 울리는 날 표시
+          Text(_thisAlarm[0]['useDate'] == 0 
+            ? '매주 ${_thisAlarm.map((e) => DateTime.parse(e['alarmDate']).weekday)
+              .map((e) => {7: '일', 1: '월',2: '화',3: '수',4: '목', 5: '금',6: '토'}[e]).toList().join(', ')}'
+            : _thisAlarm[0]['alarmDate'].split(' ')[0].toString()),
           CupertinoSwitch(//알람 온오프 스위치
             value: switchValue, 
             onChanged: (value) {
               setState(() {
                 switchValue = value;
                 if(value == true){
-                  //알람 스위치 on이면 알람에 등록 또는 해제
-                  if (_thisAlarm != null) FlutterLocalNotification.scheduledNotification(_thisAlarm!.id, _thisAlarm!.alarmDay, _thisAlarm!.alarmTime);
+                  //알람 스위치 상태에 따라 알람에 등록 또는 해제
+                  for(int i=0; i<_thisAlarm.length; i++)
+                  {
+                    if(_thisAlarm[0]['useDate'] == 0){//요일 알람 등록
+                      FlutterLocalNotification.scheduleYearlyNotification(_thisAlarm[i]['notiID'], _thisAlarm[i]['alarmDate'], _thisAlarm[i]['alarmTime']);
+                    }
+                    else if(_thisAlarm[0]['useDate'] == 0){//날짜 알람 등록
+                      FlutterLocalNotification.scheduledNotification(_thisAlarm[i]['notiID'], _thisAlarm[i]['alarmDate'], _thisAlarm[i]['alarmTime']);
+                    }
+                    
+                  }
                 }
                 else if(value == false){
-                  if (_thisAlarm != null) FlutterLocalNotification.cancelNotification(_thisAlarm!.id);
+                  for(int i=0; i<_thisAlarm.length ; i++){
+                    FlutterLocalNotification.cancelNotification(_thisAlarm[i]['notiId']);
+                  }
                 }
               });
             }
