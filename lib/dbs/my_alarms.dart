@@ -1,5 +1,5 @@
 class MyAlarm {
-  final int notiId;
+  //final int notiId;
   final String alarmId;
   final int useDate;
   final String alarmDate;
@@ -16,7 +16,7 @@ class MyAlarm {
 
   MyAlarm(
     {
-      required this.notiId,
+      //required this.notiId,
       required this.alarmId,
       required this.useDate,
       required this.alarmDate,
@@ -35,7 +35,7 @@ class MyAlarm {
 
   Map<String, dynamic> toMap() {
     return {
-      'notiId' : notiId,
+      //'notiId' : notiId,
       'alarmId' : alarmId,
       'useDate' : useDate,
       'alarmDate' : alarmDate,

@@ -84,7 +84,7 @@ class DatabaseHelper {
 
     return List.generate(data.length, (i) {
       return MyAlarm(
-        notiId: data[i]['notiId'],
+        //notiId: data[i]['notiId'],
         alarmId: data[i]['alarmId'],
         useDate: data[i]['useDate'],
         alarmDate: data[i]['alarmDate'], 
@@ -102,7 +102,7 @@ class DatabaseHelper {
     });
   }
 
-    //alarm_block에 사용할 select
+    //alarm_block과 set수정에 사용할 select
     Future<List<Map<String, dynamic>>> selectblockAlarms(String alarmId) async {
       final Database db = await database;
       final List<Map<String, dynamic>> data = await db.query('alarms', where: "alarmId = ?", whereArgs: [alarmId]);
@@ -138,7 +138,29 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> data = await db.query('alarms', where: "alarmId = ?", whereArgs: [alarmid]);
 
     return MyAlarm(
-      notiId: data[0]['notiId'],
+      //notiId: data[0]['notiId'],
+      alarmId: data[0]['alarmId'],
+      useDate: data[0]['useDate'],
+      alarmDate: data[0]['alarmDate'], 
+      alarmTime: data[0]['alarmTime'],
+      alarmName: data[0]['alarmName'],
+      useHoliday: data[0]['useHoliday'],
+      holidayOp: data[0]['holidayOp'],
+      useSound: data[0]['useSound'],
+      soundName: data[0]['soundName'],
+      useVibe: data[0]['useVibe'],
+      vibeOp: data[0]['vibeOp'],
+      useRepeat: data[0]['useRepeat'],
+      repeatOp: data[0]['repeatOp']
+    );
+  }
+
+    Future<MyAlarm> selectnotiAlarm(String alarmid) async {
+    final Database db = await database;
+    final List<Map<String, dynamic>> data = await db.query('alarms', where: "alarmId = ?", whereArgs: [alarmid], orderBy: 'notiId ASC', limit: 1);
+
+    return MyAlarm(
+      //notiId: data[0]['notiId'],
       alarmId: data[0]['alarmId'],
       useDate: data[0]['useDate'],
       alarmDate: data[0]['alarmDate'], 
@@ -170,18 +192,6 @@ class DatabaseHelper {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /*

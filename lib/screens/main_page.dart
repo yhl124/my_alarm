@@ -73,7 +73,7 @@ class _MainPageState extends State<MainPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SetPage(includeId:false, alarmId: 0,)),
+                        MaterialPageRoute(builder: (context) => SetPage(includeId:false, alarmId: '',)),
                       ).then((value) {
                         if(value != null && value as bool){
                           _refreshAlarmList();
@@ -103,6 +103,7 @@ class _MainPageState extends State<MainPage> {
               itemBuilder: (context, index) {
                 return Dismissible(//밀어서 삭제
                   key: ValueKey<dynamic>(_myalarms[index]),
+                  direction: DismissDirection.horizontal,
                   background: Container(
                     color: Color.fromARGB(255, 240, 62, 49),
                     alignment: Alignment.centerRight,
@@ -112,7 +113,7 @@ class _MainPageState extends State<MainPage> {
                   onDismissed: (direction) {
                     setState(() {
                       DatabaseHelper.instance.deleteAlarm(_myalarms[index]['alarmId']);
-                      FlutterLocalNotification.cancelNotification(_myalarms[index]['alarmId']);
+                      //FlutterLocalNotification.cancelNotification(_myalarms[index]['alarmId']);
                       _myalarms.removeAt(index);
                       //_refreshAlarmList();
                     });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:uuid/uuid.dart';
 
 import '/dbs/my_alarms.dart';
 import '/dbs/dbConfig.dart';
@@ -13,10 +14,9 @@ import 'empty_page.dart';
 
 
 class SetPage extends StatefulWidget {
-
   //includeId가 false면 알람추가, true면 저장된 알람 수정
   final bool includeId;
-  final int alarmId;
+  final String alarmId;
 
   const SetPage({
     Key? key,
@@ -40,27 +40,31 @@ const List<(Days, String)> dayOfTheWeek = <(Days, String)>[
 ];
 
 class _SetPageState extends State<SetPage> {
+  //알람 수정 : 현재 선택한 알람의 정보, 요일사용이면 여러개 아니면 한개
+  //알람 추가 : 미사용
+  List<Map<String, dynamic>> _thisAlarm = [];
+
+
   //오전 6시 이전 체크용, 0~5.99 true/ 6~23.99 false
   bool _beforeSixAM = false;
-  //오늘 오전 6시
+  //오늘 오전 6시, 오늘 날짜0시0분
   final DateTime sixAM = 
     DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 6, 0);
-  //오늘 날짜
   final DateTime today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  //알람 선택 시간 기본 오전6시
+  GlobalKey<FormState> _pickerKey = GlobalKey<FormState>();
+  DateTime _selectedTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 6, 0);
+
 
   //달력에서 선택을 했으면
   bool _selectedCal = false;
   //달력에서 오늘을 선택 했으면
   bool _selectedToday = false;
-  //달력 기본 선택날짜 리스트
+  //달력 기본 선택날짜 리스트(한개만 들어가게됨)
   List<DateTime?> _singleDatePickerValueWithDefaultValue = [];
-
-  //알람 선택 시간 기본 오전6시
-  GlobalKey<FormState> _pickerKey = GlobalKey<FormState>();
-  DateTime _selectedTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 6, 0);
   //알람 선택 날짜
   DateTime _selectedDate = DateTime.now();
-  
+
 
   //선택한 요일이 하나라도 있으면 true
   bool _selectedToggles = false;
@@ -78,10 +82,10 @@ class _SetPageState extends State<SetPage> {
   //설정 스위치 체크용
   bool _holidaySwitch = false;
   bool _soundSwitch = false;
+  //bool switchValue = false;
 
-  //현재 선택한 알람의 정보
-  MyAlarm? _thisAlarm;
-  bool switchValue = false;
+  //alarmId 생성용
+  var uuid = Uuid().v4();
 
   @override
   void initState(){
@@ -94,21 +98,21 @@ class _SetPageState extends State<SetPage> {
     _singleDatePickerValueWithDefaultValue = [_selectedDate,];
     _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(_selectedDate).toString());
     _selectedDays.add(_selectedDate);
-
+    //알람 수정이면 db에서 정보를 가져옴
     if(widget.includeId == true){
       _getAlarmInfo();
     }
   }
 
   Future<void> _getAlarmInfo() async {
-    final MyAlarm myalarmInfo = await DatabaseHelper.instance.selectAlarm(widget.alarmId);
+    final List<Map<String, dynamic>> myalarmInfo = await DatabaseHelper.instance.selectblockAlarms(widget.alarmId);
 
     setState(() {
       _thisAlarm = myalarmInfo;
       //print(_thisAlarm.toString());
-      //uuid = widget.alarmId;
-      _selectedTime = DateTime.parse(_thisAlarm!.alarmTime);
-      _nameController = TextEditingController(text : _thisAlarm!.alarmName);
+      uuid = widget.alarmId;
+      _selectedTime = DateTime.parse(_thisAlarm[0]['alarmTime']);
+      _nameController = TextEditingController(text : _thisAlarm[0]['alarmName']);
 
       _pickerKey = GlobalKey();
       _textFieldKey = GlobalKey();
@@ -375,26 +379,57 @@ class _SetPageState extends State<SetPage> {
                   }
                   else{
                     if(widget.includeId == false){//알람 추가
-                      await DatabaseHelper.instance.insertAlarm(
-                        MyAlarm(
-                          id: 0,//그냥 0을 넣음 내부적으로는 autoincrese
-                          alarmName: _nameController.text, 
-                          alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                          alarmDay : _selectedDays.join(', '),
-                          usingAlarmSound: _soundSwitch? 1 : 0,
-                        )
-                      );
+                      for(int i=0; i<_selectedDays.length; i++){
+                        await DatabaseHelper.instance.insertAlarm(
+                          MyAlarm(
+                            //notiId: 0,//있어야 돼서 0을 넣음 내부적으로는 autoincrese
+                            alarmId: uuid,
+                            useDate: _selectedToggles ? 0 : 1,
+                            alarmDate: _selectedDays[i].toString(), 
+                            alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
+                            alarmName: _nameController.text, 
+                            useHoliday: _holidaySwitch ? 1 : 0,
+                            holidayOp: 0,//미완성,임시값
+                            useSound: _soundSwitch ? 1 : 0,
+                            soundName: '미완성,임시값',
+                            useVibe: 0,//임시
+                            vibeOp: '임시값',
+                            useRepeat: 0,//임시
+                            repeatOp: 1//임시
+                          )
+                        ).then((value) {
+                          //여기서 가장 큰 notiId값을 가져와서 id, 날짜, 시간을 사용해 noti등록
+                        });
+                      }
                     }
-                    else if(widget.includeId == true){//알람 수정
-                        await DatabaseHelper.instance.updateAlarm(
-                        MyAlarm(
-                          id: widget.alarmId,
-                          alarmName: _nameController.text, 
-                          alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
-                          alarmDay : _selectedDays.join(', '),
-                          usingAlarmSound:  _soundSwitch? 1 : 0,
-                        )
-                      );
+                    else if(widget.includeId == true){//알람 수정 : 기존 alarm, noti모두 삭제 후 재등록
+                      await DatabaseHelper.instance.deleteAlarm(uuid);
+                      for(int i=0; i<_thisAlarm.length; i++){
+                        FlutterLocalNotification.cancelNotification(_thisAlarm[i]['notiId']);
+                      }
+
+                      for(int i=0; i<_selectedDays.length; i++){
+                        await DatabaseHelper.instance.insertAlarm(
+                          MyAlarm(
+                            //notiId: 0,//있어야 돼서 0을 넣음 내부적으로는 autoincrese
+                            alarmId: uuid,
+                            useDate: _selectedToggles ? 0 : 1,
+                            alarmDate: _selectedDays[i].toString(), 
+                            alarmTime: DateFormat('yyyy-MM-dd HH:mm').format(_selectedTime), 
+                            alarmName: _nameController.text, 
+                            useHoliday: _holidaySwitch ? 1 : 0,
+                            holidayOp: 0,//미완성,임시값
+                            useSound: _soundSwitch ? 1 : 0,
+                            soundName: '미완성,임시값',
+                            useVibe: 0,//임시
+                            vibeOp: '임시값',
+                            useRepeat: 0,//임시
+                            repeatOp: 1//임시
+                          )
+                        ).then((value) {
+                          //여기서 가장 큰 notiId값을 가져와서 id, 날짜, 시간을 사용해 noti등록
+                        });
+                      }
                     }
                     Navigator.of(context).pop(true);
                   }

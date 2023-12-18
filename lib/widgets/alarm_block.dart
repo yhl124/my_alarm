@@ -20,15 +20,23 @@ class AlarmBlock extends StatefulWidget {
 class _AlarmBlockState extends State<AlarmBlock> {
 
   //현재 선택한 알람의 정보, 요일사용이면 여러개 아니면 한개
-  List<Map<String, dynamic>> _thisAlarm = [];
+  List<Map<String, dynamic>>? _thisAlarm;
   bool switchValue = true;
 
   @override
   void initState() {
     super.initState();
-    _getAlarmInfo();
-    //FlutterLocalNotification.init();
-    //print(_thisAlarm.toString());
+
+    _getAlarmInfo().then((value) {
+      if(_thisAlarm != null && _thisAlarm![0]['useDate'] == 1){//날짜 알람
+        FlutterLocalNotification.scheduledNotification(_thisAlarm![0]['notiId'], _thisAlarm![0]['alarmDate'], _thisAlarm![0]['alarmTime']);
+      }
+      else if(_thisAlarm != null && _thisAlarm![0]['useDate'] == 0){//요일 알람
+        for(int i=0; i<_thisAlarm!.length; i++){
+          FlutterLocalNotification.scheduleYearlyNotification(_thisAlarm![i]['notiId'], _thisAlarm![i]['alarmDate'], _thisAlarm![i]['alarmTime']);
+        }
+      }
+    });
   }
 
   Future<void> _getAlarmInfo() async {
@@ -36,7 +44,7 @@ class _AlarmBlockState extends State<AlarmBlock> {
 
     setState(() {
       _thisAlarm = myalarmInfo;
-      //print(_thisAlarm.toString());
+      print(_thisAlarm.toString());
     });
   }
 
@@ -47,13 +55,15 @@ class _AlarmBlockState extends State<AlarmBlock> {
         height: MediaQuery.of(context).size.height * 0.12,
         child: Row(children: [
           //알람 울리는 시간 표시
-          Text(_thisAlarm[0]['alarmTime'].split(' ')[1].toString()),
+          if(_thisAlarm != null)
+            Text(_thisAlarm![0]['alarmTime'].split(' ')[1].toString()),
           Expanded(child: Container(),),
           //알람 울리는 날 표시
-          Text(_thisAlarm[0]['useDate'] == 0 
-            ? '매주 ${_thisAlarm.map((e) => DateTime.parse(e['alarmDate']).weekday)
-              .map((e) => {7: '일', 1: '월',2: '화',3: '수',4: '목', 5: '금',6: '토'}[e]).toList().join(', ')}'
-            : _thisAlarm[0]['alarmDate'].split(' ')[0].toString()),
+          if(_thisAlarm != null)
+            Text(_thisAlarm![0]['useDate'] == 0 
+              ? '매주 ${_thisAlarm!.map((e) => DateTime.parse(e['alarmDate']).weekday)
+                .map((f) => {7: '일', 1: '월',2: '화',3: '수',4: '목', 5: '금',6: '토'}[f]).toList().join(', ')}'
+              : _thisAlarm![0]['alarmDate'].split(' ')[0].toString()),
           CupertinoSwitch(//알람 온오프 스위치
             value: switchValue, 
             onChanged: (value) {
@@ -61,20 +71,20 @@ class _AlarmBlockState extends State<AlarmBlock> {
                 switchValue = value;
                 if(value == true){
                   //알람 스위치 상태에 따라 알람에 등록 또는 해제
-                  for(int i=0; i<_thisAlarm.length; i++)
+                  for(int i=0; i<_thisAlarm!.length; i++)
                   {
-                    if(_thisAlarm[0]['useDate'] == 0){//요일 알람 등록
-                      FlutterLocalNotification.scheduleYearlyNotification(_thisAlarm[i]['notiID'], _thisAlarm[i]['alarmDate'], _thisAlarm[i]['alarmTime']);
+                    if(_thisAlarm![0]['useDate'] == 0){//요일 알람 등록
+                      FlutterLocalNotification.scheduleYearlyNotification(_thisAlarm![i]['notiID'], _thisAlarm![i]['alarmDate'], _thisAlarm![i]['alarmTime']);
                     }
-                    else if(_thisAlarm[0]['useDate'] == 0){//날짜 알람 등록
-                      FlutterLocalNotification.scheduledNotification(_thisAlarm[i]['notiID'], _thisAlarm[i]['alarmDate'], _thisAlarm[i]['alarmTime']);
+                    else if(_thisAlarm![0]['useDate'] == 0){//날짜 알람 등록
+                      FlutterLocalNotification.scheduledNotification(_thisAlarm![i]['notiID'], _thisAlarm![i]['alarmDate'], _thisAlarm![i]['alarmTime']);
                     }
                     
                   }
                 }
                 else if(value == false){
-                  for(int i=0; i<_thisAlarm.length ; i++){
-                    FlutterLocalNotification.cancelNotification(_thisAlarm[i]['notiId']);
+                  for(int i=0; i<_thisAlarm!.length ; i++){
+                    FlutterLocalNotification.cancelNotification(_thisAlarm![i]['notiId']);
                   }
                 }
               });
@@ -83,6 +93,14 @@ class _AlarmBlockState extends State<AlarmBlock> {
         ]),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    for(int i=0; i<_thisAlarm!.length ; i++){
+      FlutterLocalNotification.cancelNotification(_thisAlarm![i]['notiId']);
+    }
+    super.dispose();
   }
 }
 

@@ -57,9 +57,11 @@ class FlutterLocalNotification {
     //final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = 
         tz.TZDateTime(tz.local, forDay.year, forDay.month, forDay.day, forTime.hour, forTime.minute);
+    /*
     while (scheduledDate.weekday != DateTime.monday) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
+    */
     return scheduledDate;
   }
 
@@ -105,24 +107,20 @@ class FlutterLocalNotification {
   }
 
   static Future<void> scheduleYearlyNotification(int id, String day, String time) async {//id, 시간, 요일을 받아와야됨
-    List<String> forDay = day.split(', ');
-
-    for(int i=0; i<forDay.length; i++){
-      await flutterLocalNotificationsPlugin.zonedSchedule(
-          id,
-          'yearly scheduled notification title',
-          'yearly scheduled notification body',
-          _nextInstanceOfDayTime(DateTime.parse(forDay[i]), DateTime.parse(time)),//여기에 요일 시간 전달
-          const NotificationDetails(
-            android: AndroidNotificationDetails('yearly notification channel id',
-                'yearly notification channel name',
-                channelDescription: 'yearly notification description'),
-          ),
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: DateTimeComponents.dateAndTime);
-    }
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        'yearly scheduled notification title',
+        'yearly scheduled notification body',
+        _nextInstanceOfDayTime(DateTime.parse(day), DateTime.parse(time)),//여기에 요일 시간 전달
+        const NotificationDetails(
+          android: AndroidNotificationDetails('yearly notification channel id',
+              'yearly notification channel name',
+              channelDescription: 'yearly notification description'),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
   static Future<void> cancelNotification(int id) async {
