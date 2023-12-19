@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:sqflite/sqflite.dart';
+//import 'package:sqflite/sqflite.dart';
 
 import 'set_page.dart';
-import '/dbs/my_alarms.dart';
+//import '/dbs/my_alarms.dart';
 import '/dbs/dbConfig.dart';
 import '/widgets/notification.dart';
 import '/widgets/alarm_block.dart';
@@ -103,7 +103,7 @@ class _MainPageState extends State<MainPage> {
               itemBuilder: (context, index) {
                 return Dismissible(//밀어서 삭제
                   key: ValueKey<dynamic>(_myalarms[index]),
-                  direction: DismissDirection.horizontal,
+                  direction: DismissDirection.endToStart,
                   background: Container(
                     color: Color.fromARGB(255, 240, 62, 49),
                     alignment: Alignment.centerRight,

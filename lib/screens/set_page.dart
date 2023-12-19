@@ -100,7 +100,13 @@ class _SetPageState extends State<SetPage> {
     _selectedDays.add(_selectedDate);
     //알람 수정이면 db에서 정보를 가져옴
     if(widget.includeId == true){
-      _getAlarmInfo();
+      _getAlarmInfo().then((value) {
+        if(_thisAlarm[0]['useDate'] == 1){//날짜 선택이면
+          _singleDatePickerValueWithDefaultValue = [DateTime.parse(_thisAlarm[0]['alarmDate'])];
+          _daysForDisplay.clear();
+          _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(DateTime.parse(_thisAlarm[0]['alarmDate'])).toString());
+        }
+      });
     }
   }
 

@@ -89,17 +89,13 @@ class FlutterLocalNotification {
             priority: Priority.max,
             showWhen: false);
 
-    //print(day);
-
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       'scheduled title',
       'scheduled body',
       //tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
       _nextInstanceOfTime(DateTime.parse(day), DateTime.parse(time)),//여기에 날짜, 시간 전달
-      const NotificationDetails(
-        android: androidNotificationDetails
-      ),
+      const NotificationDetails(android: androidNotificationDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime
@@ -107,16 +103,19 @@ class FlutterLocalNotification {
   }
 
   static Future<void> scheduleYearlyNotification(int id, String day, String time) async {//id, 시간, 요일을 받아와야됨
+    const AndroidNotificationDetails androidNotificationDetails =
+      AndroidNotificationDetails('channel id', 'channel name',
+          channelDescription: 'channel description',
+          importance: Importance.max,
+          priority: Priority.max,
+          showWhen: false);
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         'yearly scheduled notification title',
         'yearly scheduled notification body',
         _nextInstanceOfDayTime(DateTime.parse(day), DateTime.parse(time)),//여기에 요일 시간 전달
-        const NotificationDetails(
-          android: AndroidNotificationDetails('yearly notification channel id',
-              'yearly notification channel name',
-              channelDescription: 'yearly notification description'),
-        ),
+      const NotificationDetails(android: androidNotificationDetails),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
