@@ -1,9 +1,9 @@
 # This is a generated file; do not edit or check into version control.
-flutter_local_notifications=C:\\Users\\yh\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\flutter_local_notifications-15.1.2\\
-flutter_ringtone_player=C:\\Users\\yh\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\flutter_ringtone_player-3.2.0\\
-path_provider=C:\\Users\\yh\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider-2.1.1\\
-path_provider_android=C:\\Users\\yh\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_android-2.2.1\\
-path_provider_foundation=C:\\Users\\yh\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_foundation-2.3.1\\
-path_provider_linux=C:\\Users\\yh\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_linux-2.2.1\\
-path_provider_windows=C:\\Users\\yh\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_windows-2.2.1\\
-sqflite=C:\\Users\\yh\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\sqflite-2.3.0\\
+flutter_local_notifications=/Users/yh/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.2/
+flutter_ringtone_player=/Users/yh/.pub-cache/hosted/pub.dev/flutter_ringtone_player-3.2.0/
+path_provider=/Users/yh/.pub-cache/hosted/pub.dev/path_provider-2.1.1/
+path_provider_android=/Users/yh/.pub-cache/hosted/pub.dev/path_provider_android-2.2.1/
+path_provider_foundation=/Users/yh/.pub-cache/hosted/pub.dev/path_provider_foundation-2.3.1/
+path_provider_linux=/Users/yh/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+path_provider_windows=/Users/yh/.pub-cache/hosted/pub.dev/path_provider_windows-2.2.1/
+sqflite=/Users/yh/.pub-cache/hosted/pub.dev/sqflite-2.3.0/
