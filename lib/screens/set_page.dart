@@ -106,7 +106,34 @@ class _SetPageState extends State<SetPage> {
           _daysForDisplay.clear();
           _daysForDisplay.add(DateFormat('MM월 dd일 E요일').format(DateTime.parse(_thisAlarm[0]['alarmDate'])).toString());
         }
-      });
+        else if(_thisAlarm[0]['useDate'] == 0){//요일 선택이면
+          _selectedToggles = true;
+          for(int i=0; i<_thisAlarm.length; i++){
+            //일요일(7)이면 버튼 인덱스는 0
+            int index = DateTime.parse(_thisAlarm[i]['alarmDate']).weekday == 7 ? 0 : DateTime.parse(_thisAlarm[i]['alarmDate']).weekday;
+            _toggleButtonsSelection[index] = !_toggleButtonsSelection[index];
+          }
+
+          _daysForDisplay.add('매주 ');
+          List<int> selectedIndexes = [];
+          for(int i=0; i<_toggleButtonsSelection.length; i++){
+            if(_toggleButtonsSelection[i]){
+              selectedIndexes.add(i);
+            }
+          }
+          //출력용 리스트에 요일 추가
+          _daysForDisplay.clear();
+          _selectedDays.clear();
+          _daysForDisplay.add('매주 ');
+          _selectedToggles = true;
+          selectedIndexes.forEach((index) {
+            _daysForDisplay.add(dayOfTheWeek[index].$2);
+            _selectedDays.add(index<today.weekday ? 
+                              today.add(Duration(days: index-today.weekday+7)) :
+                              today.add(Duration(days: index-today.weekday)));
+          });
+        }
+      });      
     }
   }
 
@@ -137,7 +164,7 @@ class _SetPageState extends State<SetPage> {
       onWillPop: () => _onWillPop(context),
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(20.0),
+          preferredSize: Size.fromHeight(40.0),
           child: AppBar( 
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -451,7 +478,7 @@ class _SetPageState extends State<SetPage> {
   
   Future<bool> _onWillPop(BuildContext context) async {
     // 뒤로가기 버튼을 눌렀을 때 확인/취소 다이얼로그 표시
-    bool confirm = await showDialog(
+    bool? confirm = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AnimatedAlign(

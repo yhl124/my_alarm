@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
-import '/dbs/my_alarms.dart';
+//import '/dbs/my_alarms.dart';
 import '/dbs/dbConfig.dart';
 import '/widgets/notification.dart';
 
@@ -28,8 +28,21 @@ class _AlarmBlockState extends State<AlarmBlock> {
     super.initState();
 
     _getAlarmInfo().then((value) {
-      if(_thisAlarm != null && _thisAlarm![0]['useDate'] == 1){//날짜 알람
+      DateTime alarmDate = DateTime.parse(_thisAlarm![0]['alarmDate']);
+      DateTime alarmTime = DateTime.parse(_thisAlarm![0]['alarmTime']);
+
+      int year1 = alarmDate.year;
+      int month1 = alarmDate.month;
+      int day1 = alarmDate.day;
+      int hour1 = alarmTime.hour;
+      int minute1 = alarmTime.minute;
+      DateTime alarmDT = DateTime(year1, month1, day1, hour1, minute1);
+
+      if(_thisAlarm != null && alarmDT.isAfter(DateTime.now()) && _thisAlarm![0]['useDate'] == 1){//날짜 알람
         FlutterLocalNotification.scheduledNotification(_thisAlarm![0]['notiId'], _thisAlarm![0]['alarmDate'], _thisAlarm![0]['alarmTime']);
+      }
+      else if(_thisAlarm != null && !alarmDT.isAfter(DateTime.now()) && _thisAlarm![0]['useDate'] == 1){//시간이 지난 날짜 알람
+        switchValue = false;
       }
       else if(_thisAlarm != null && _thisAlarm![0]['useDate'] == 0){//요일 알람
         for(int i=0; i<_thisAlarm!.length; i++){
