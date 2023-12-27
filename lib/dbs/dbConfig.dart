@@ -21,6 +21,33 @@ class DatabaseHelper {
       onCreate: (db, version) {
         return db.execute(
           'CREATE TABLE alarms(notiId INTEGER PRIMARY KEY AUTOINCREMENT, '
+          'alarmId TEXT NOT NULL, useDate INTEGER NOT NULL, alarmName TEXT,'
+          'useHoliday INTEGER NOT NULL, holidayOp INTEGER, '
+          'useRepeat INTEGER NOT NULL, repeatOp INTEGER)'
+        );
+      },
+      version: 9,
+      onUpgrade: _onUpgrade
+    );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if(oldVersion < newVersion) {
+      await db.execute("DROP TABLE IF EXISTS alarms");
+      await db.execute('CREATE TABLE alarms(notiId INTEGER PRIMARY KEY AUTOINCREMENT, '
+                        'alarmId TEXT NOT NULL, useDate INTEGER NOT NULL, alarmName TEXT,'
+                        'useHoliday INTEGER NOT NULL, holidayOp INTEGER, '
+                        'useRepeat INTEGER NOT NULL, repeatOp INTEGER)');
+    }
+  }
+
+/*
+  Future<Database> _initDatabase() async {
+    return openDatabase(
+      join(await getDatabasesPath(), 'alarm_database.db'),
+      onCreate: (db, version) {
+        return db.execute(
+          'CREATE TABLE alarms(notiId INTEGER PRIMARY KEY AUTOINCREMENT, '
           'alarmId TEXT NOT NULL, useDate INTEGER NOT NULL, '
           'alarmDate TEXT NOT NULL, alarmTime TEXT NOT NULL, alarmName TEXT, '
           'useHoliday INTEGER NOT NULL, holidayOp INTEGER, '
@@ -44,7 +71,7 @@ class DatabaseHelper {
                         'useRepeat INTEGER NOT NULL, repeatOp INTEGER)');
     }
   }
-
+*/
   Future<bool> insertAlarm(MyAlarm myalram) async {
     final Database db = await database;
     try{
@@ -87,15 +114,15 @@ class DatabaseHelper {
         //notiId: data[i]['notiId'],
         alarmId: data[i]['alarmId'],
         useDate: data[i]['useDate'],
-        alarmDate: data[i]['alarmDate'], 
-        alarmTime: data[i]['alarmTime'],
+        // alarmDate: data[i]['alarmDate'], 
+        // alarmTime: data[i]['alarmTime'],
         alarmName: data[i]['alarmName'],
         useHoliday: data[i]['useHoliday'],
         holidayOp: data[i]['holidayOp'],
-        useSound: data[i]['useSound'],
-        soundName: data[i]['soundName'],
-        useVibe: data[i]['useVibe'],
-        vibeOp: data[i]['vibeOp'],
+        // useSound: data[i]['useSound'],
+        // soundName: data[i]['soundName'],
+        // useVibe: data[i]['useVibe'],
+        // vibeOp: data[i]['vibeOp'],
         useRepeat: data[i]['useRepeat'],
         repeatOp: data[i]['repeatOp']
       );
@@ -112,8 +139,8 @@ class DatabaseHelper {
           'notiId': data[i]['notiId'],
           'alarmId': data[i]['alarmId'],
           'useDate': data[i]['useDate'],
-          'alarmDate': data[i]['alarmDate'], 
-          'alarmTime': data[i]['alarmTime'],
+          // 'alarmDate': data[i]['alarmDate'], 
+          // 'alarmTime': data[i]['alarmTime'],
           'alarmName': data[i]['alarmName']
         };
       });
@@ -141,15 +168,15 @@ class DatabaseHelper {
       //notiId: data[0]['notiId'],
       alarmId: data[0]['alarmId'],
       useDate: data[0]['useDate'],
-      alarmDate: data[0]['alarmDate'], 
-      alarmTime: data[0]['alarmTime'],
+      // alarmDate: data[0]['alarmDate'], 
+      // alarmTime: data[0]['alarmTime'],
       alarmName: data[0]['alarmName'],
       useHoliday: data[0]['useHoliday'],
       holidayOp: data[0]['holidayOp'],
-      useSound: data[0]['useSound'],
-      soundName: data[0]['soundName'],
-      useVibe: data[0]['useVibe'],
-      vibeOp: data[0]['vibeOp'],
+      // useSound: data[0]['useSound'],
+      // soundName: data[0]['soundName'],
+      // useVibe: data[0]['useVibe'],
+      // vibeOp: data[0]['vibeOp'],
       useRepeat: data[0]['useRepeat'],
       repeatOp: data[0]['repeatOp']
     );
@@ -163,15 +190,15 @@ class DatabaseHelper {
       //notiId: data[0]['notiId'],
       alarmId: data[0]['alarmId'],
       useDate: data[0]['useDate'],
-      alarmDate: data[0]['alarmDate'], 
-      alarmTime: data[0]['alarmTime'],
+      // alarmDate: data[0]['alarmDate'], 
+      // alarmTime: data[0]['alarmTime'],
       alarmName: data[0]['alarmName'],
       useHoliday: data[0]['useHoliday'],
       holidayOp: data[0]['holidayOp'],
-      useSound: data[0]['useSound'],
-      soundName: data[0]['soundName'],
-      useVibe: data[0]['useVibe'],
-      vibeOp: data[0]['vibeOp'],
+      // useSound: data[0]['useSound'],
+      // soundName: data[0]['soundName'],
+      // useVibe: data[0]['useVibe'],
+      // vibeOp: data[0]['vibeOp'],
       useRepeat: data[0]['useRepeat'],
       repeatOp: data[0]['repeatOp']
     );

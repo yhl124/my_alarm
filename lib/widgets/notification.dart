@@ -123,6 +123,7 @@ class FlutterLocalNotification {
         matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
+ 
   static Future<void> cancelNotification(int id) async {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
