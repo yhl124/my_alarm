@@ -9,8 +9,13 @@
     ![day](readme/ios/02-2요일.png)
 3. dialog(저장하지 않고 나갈때, 현재 이전의 시간을 선택했을 때)
     ![dialog](readme/ios/저장안함.png)
-4. 밀어서 알람 삭제
-    <img scr="/readme/ios/삭제.png"></img>
+4. 알람 수정
+5. 밀어서 알람 삭제
+   </br>
+    ![del](readme/ios/삭제.png)</br>
+6. 알림(notification)
+   </br>
+    ![noti](readme/ios/알림.png)</br>
    
 ## 알람 관리
 1. 알람 목록 관리 : sqflite
