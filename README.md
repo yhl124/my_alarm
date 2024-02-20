@@ -9,7 +9,7 @@
     ![day](readme/ios/02-2요일.png)
 3. dialog(저장하지 않고 나갈때, 현재 이전의 시간을 선택했을 때)
     ![dialog](readme/ios/저장안함.png)
-4. 저장된 알람 수정
+4. 저장된 알람 수정 </br>
 5. 밀어서 알람 삭제
     ![del](readme/ios/삭제.png)
 6. 알람 시간에 알림(notification)
